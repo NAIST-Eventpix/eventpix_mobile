@@ -1,16 +1,39 @@
 # eventpix_mobile
 
-A new Flutter project.
+# 環境構築
+(文責：山﨑 `@Hietan` )
 
-## Getting Started
+## Flutterのセットアップ (必須)
 
-This project is a starting point for a Flutter application.
+事前に，Flutterの環境構築を行なってください．
+環境構築については公式のDocument等を参照．
 
-A few resources to get you started if this is your first Flutter project:
+ターミナルで，`flutter doctor` を実行し，`No issues found` となればOK
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+!["flutter doctor" の成功画面](/docs/assets/flutter_doctor.png)
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## 実機のセットアップ (実機デバッグする場合)
+
+実機でデバッグを行う場合，開発者モードをONにする必要があります．
+PC上のエミュレータでもほぼ全ての検証を行うことは可能です．
+
+> [!WARNING]
+> カメラ機能は実機で検証する必要があります．
+
+### Androidの開発者モード
+
+* `設定` > `デバイス情報` を開く
+* `ビルド番号` を7回タップすると，開発者モードがONになる
+* `設定` > `システム` > `開発者向けオプション` を開く
+* `デバッグ` > `USBデバッグ` をONにする
+
+### iPhoneの開発者モード
+
+* `設定` > `プライバシーとセキュリティ` を開く
+* `開発者モード` をONにする
+
+# 実行
+
+プロジェクトのルートディレクトリで，以下のコマンドを実行
+
+`flutter run`
