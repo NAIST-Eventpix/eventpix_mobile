@@ -49,6 +49,21 @@ class MyHomePageState extends State<MyHomePage> {
     }
   }
 
+  Future<void> _takePicture() async {
+    final pickedFile = await picker.pickImage(source: ImageSource.camera);
+
+    if (!mounted) return;
+
+    if (pickedFile != null) {
+      Navigator.push(
+        context,
+        NoAnimationPageRoute(
+          builder: (context) => ImageDisplayPage(imageFile: File(pickedFile.path)),
+        )
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -58,12 +73,15 @@ class MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             const Text(
-              'Input Images!',
+              'スケジュールを読み込む画像を選択してください',
             ),
             ElevatedButton(
               onPressed: _pickImage,
-              child: const Text('Pick Image!'),  
-            )
+              child: const Text('ライブラリから選択する'),  
+            ),
+            ElevatedButton(
+              onPressed: _takePicture,
+              child: const Text('カメラで写真を撮る'))
           ],
         ),
       ),
