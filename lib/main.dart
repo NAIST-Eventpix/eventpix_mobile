@@ -42,7 +42,7 @@ class MyHomePageState extends State<MyHomePage> {
     if (pickedFile != null) {
       Navigator.push(
         context,
-        MaterialPageRoute(
+        NoAnimationPageRoute(
           builder: (context) => ImageDisplayPage(imageFile: File(pickedFile.path)),
         )
       );
@@ -103,5 +103,16 @@ class ImageDisplayPage extends StatelessWidget {
         child: Image.file(imageFile),
       )
     );
+  }
+}
+
+class NoAnimationPageRoute<T> extends MaterialPageRoute<T> {
+  NoAnimationPageRoute({required super.builder});
+
+  @override
+  Widget buildTransitions(BuildContext context, Animation<double> animation,
+      Animation<double> secondaryAnimation, Widget child) {
+    // 遷移アニメーションを無効化
+    return child;
   }
 }
