@@ -32,29 +32,27 @@ class MyHomePage extends StatefulWidget {
 }
 
 class MyHomePageState extends State<MyHomePage> {
-  File? _image;
   final picker = ImagePicker();
 
   Future<void> _pickImage() async {
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
 
+    if (!mounted) return;
+
     if (pickedFile != null) {
-      setState(() {
-        _image = File(pickedFile.path);
-      });
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ImageDisplayPage(imageFile: File(pickedFile.path)),
+        )
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Image.asset(
-          'assets/icon/logo_name.png',
-          height: 40,  
-        ),
-      ),
+      appBar: const MyAppBar(),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -62,7 +60,6 @@ class MyHomePageState extends State<MyHomePage> {
             const Text(
               'Input Images!',
             ),
-            _image == null ? const Text('No image selected.') : Image.file(_image!),
             ElevatedButton(
               onPressed: _pickImage,
               child: const Text('Pick Image!'),  
@@ -70,6 +67,41 @@ class MyHomePageState extends State<MyHomePage> {
           ],
         ),
       ),
+    );
+  }
+}
+
+class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
+  @override
+  final Size preferredSize;
+
+  const MyAppBar({super.key})
+      : preferredSize = const Size.fromHeight(56.0);
+
+  @override
+  Widget build(BuildContext context) {
+    return AppBar(
+      backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+      title: Image.asset(
+        'assets/icon/logo_name.png',
+        height: 40,  
+      ),
+    );
+  }
+}
+
+class ImageDisplayPage extends StatelessWidget {
+  final File imageFile;
+
+  const ImageDisplayPage({super.key, required this.imageFile});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: const MyAppBar(),
+      body: Center(
+        child: Image.file(imageFile),
+      )
     );
   }
 }
