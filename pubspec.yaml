@@ -91,6 +91,7 @@ flutter:
   # see https://flutter.dev/to/font-from-package
   assets:
     - assets/icon/logo_square.png
+    - assets/icon/logo_name.png
 
 flutter_icons:
   android: true
