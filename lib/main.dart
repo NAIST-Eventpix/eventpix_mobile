@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
-import 'dart:io';
+import 'dart:convert';
+
+typedef Json = Map<String, dynamic>;
 
 void main() {
   runApp(const MyApp());
@@ -31,34 +34,48 @@ class MyHomePage extends StatefulWidget {
   MyHomePageState createState() => MyHomePageState();
 }
 
+
 class MyHomePageState extends State<MyHomePage> {
   final picker = ImagePicker();
 
-  Future<void> _pickImage() async {
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-
-    if (!mounted) return;
-
-    if (pickedFile != null) {
-      Navigator.push(
-        context,
-        NoAnimationPageRoute(
-          builder: (context) => ImageDisplayPage(imageFile: File(pickedFile.path)),
-        )
+  Future<Json> apiRequest(XFile pickedFile) async {
+    try {
+      http.MultipartRequest request = http.MultipartRequest(
+        'POST',
+        Uri.parse('http://localhost:8000/pick_schedule_from_image'),
       );
+
+      request.files.add(
+        await http.MultipartFile.fromPath(
+          'file',
+          pickedFile.path,
+        ),
+      );
+
+      var streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+
+      final json = jsonDecode(response.body);
+      return json;
+    } catch (e) {
+      print(e);
+      return {
+        'error': e.toString(),
+      };
     }
   }
 
-  Future<void> _takePicture() async {
-    final pickedFile = await picker.pickImage(source: ImageSource.camera);
+  Future<void> _pickImage(ImageSource source) async {
+    final pickedFile = await picker.pickImage(source: source);
 
     if (!mounted) return;
 
     if (pickedFile != null) {
+      final json = await apiRequest(pickedFile);
       Navigator.push(
         context,
         NoAnimationPageRoute(
-          builder: (context) => ImageDisplayPage(imageFile: File(pickedFile.path)),
+          builder: (context) => ImageDisplayPage(json: json),
         )
       );
     }
@@ -76,11 +93,11 @@ class MyHomePageState extends State<MyHomePage> {
               'スケジュールを読み込む画像を選択してください',
             ),
             ElevatedButton(
-              onPressed: _pickImage,
+              onPressed: () => _pickImage(ImageSource.gallery),
               child: const Text('ライブラリから選択する'),  
             ),
             ElevatedButton(
-              onPressed: _takePicture,
+              onPressed: () => _pickImage(ImageSource.camera),
               child: const Text('カメラで写真を撮る'))
           ],
         ),
@@ -109,16 +126,17 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
 }
 
 class ImageDisplayPage extends StatelessWidget {
-  final File imageFile;
+  final Json json;
 
-  const ImageDisplayPage({super.key, required this.imageFile});
+  const ImageDisplayPage({super.key, required this.json});
 
   @override
   Widget build(BuildContext context) {
+    String jsonString = jsonEncode(json);
     return Scaffold(
       appBar: const MyAppBar(),
       body: Center(
-        child: Image.file(imageFile),
+        child: Text(jsonString),
       )
     );
   }
