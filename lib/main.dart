@@ -34,7 +34,6 @@ class MyHomePage extends StatefulWidget {
   MyHomePageState createState() => MyHomePageState();
 }
 
-
 class MyHomePageState extends State<MyHomePage> {
   final picker = ImagePicker();
 
@@ -58,7 +57,6 @@ class MyHomePageState extends State<MyHomePage> {
       final json = jsonDecode(response.body);
       return json;
     } catch (e) {
-      print(e);
       return {
         'error': e.toString(),
       };
@@ -68,16 +66,16 @@ class MyHomePageState extends State<MyHomePage> {
   Future<void> _pickImage(ImageSource source) async {
     final pickedFile = await picker.pickImage(source: source);
 
-    if (!mounted) return;
-
     if (pickedFile != null) {
       final json = await apiRequest(pickedFile);
+
+      if (!mounted) return;
+
       Navigator.push(
-        context,
-        NoAnimationPageRoute(
-          builder: (context) => ImageDisplayPage(json: json),
-        )
-      );
+          context,
+          NoAnimationPageRoute(
+            builder: (context) => ImageDisplayPage(json: json),
+          ));
     }
   }
 
@@ -94,11 +92,11 @@ class MyHomePageState extends State<MyHomePage> {
             ),
             ElevatedButton(
               onPressed: () => _pickImage(ImageSource.gallery),
-              child: const Text('ライブラリから選択する'),  
+              child: const Text('ライブラリから選択する'),
             ),
             ElevatedButton(
-              onPressed: () => _pickImage(ImageSource.camera),
-              child: const Text('カメラで写真を撮る'))
+                onPressed: () => _pickImage(ImageSource.camera),
+                child: const Text('カメラで写真を撮る'))
           ],
         ),
       ),
@@ -110,8 +108,7 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   final Size preferredSize;
 
-  const MyAppBar({super.key})
-      : preferredSize = const Size.fromHeight(56.0);
+  const MyAppBar({super.key}) : preferredSize = const Size.fromHeight(56.0);
 
   @override
   Widget build(BuildContext context) {
@@ -119,7 +116,7 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
       backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       title: Image.asset(
         'assets/icon/logo_name.png',
-        height: 40,  
+        height: 40,
       ),
     );
   }
@@ -134,11 +131,10 @@ class ImageDisplayPage extends StatelessWidget {
   Widget build(BuildContext context) {
     String jsonString = jsonEncode(json);
     return Scaffold(
-      appBar: const MyAppBar(),
-      body: Center(
-        child: Text(jsonString),
-      )
-    );
+        appBar: const MyAppBar(),
+        body: Center(
+          child: Text(jsonString),
+        ));
   }
 }
 
