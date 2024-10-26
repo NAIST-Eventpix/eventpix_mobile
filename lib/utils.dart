@@ -76,3 +76,34 @@ class EventCard extends StatelessWidget {
     );
   }
 }
+
+void errorDialog(BuildContext context, String errorMessage, {VoidCallback? onRetry}) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text('ERROR!'),
+        content: Text(errorMessage),
+        actions: <Widget>[
+          // 再試行ボタン
+          if (onRetry != null) 
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // ダイアログを閉じる
+                onRetry(); // 再試行のコールバックを実行
+              },
+              child: const Text('再試行'),
+            ),
+          // OKボタン
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              Navigator.of(context).pushReplacementNamed('/');
+            },
+            child: const Text('OK'),
+          ),
+        ],
+      );
+    },
+  );
+}
