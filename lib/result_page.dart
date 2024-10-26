@@ -3,10 +3,10 @@ import 'dart:convert';
 
 import 'utils.dart';
 
-class ImageDisplayPage extends StatelessWidget {
+class ResultPage extends StatelessWidget {
   final Json json;
 
-  const ImageDisplayPage({super.key, required this.json});
+  const ResultPage({super.key, required this.json});
 
   @override
   Widget build(BuildContext context) {

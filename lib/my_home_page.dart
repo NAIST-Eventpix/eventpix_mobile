@@ -4,7 +4,7 @@ import 'package:image_picker/image_picker.dart';
 
 import 'dart:convert';
 
-import 'image_display_page.dart';
+import 'result_page.dart';
 import 'utils.dart';
 
 class MyHomePage extends StatefulWidget {
@@ -84,7 +84,7 @@ class MyHomePageState extends State<MyHomePage> {
       Navigator.push(
         context,
         NoAnimationPageRoute(
-          builder: (context) => ImageDisplayPage(json: json),
+          builder: (context) => ResultPage(json: json),
         )
       );
     }
