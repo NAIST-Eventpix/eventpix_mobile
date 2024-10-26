@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
@@ -26,14 +28,23 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AppBar(
-      backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-      title: Center(
+    Widget appBarTitle;
+    if (Platform.isIOS) {
+      appBarTitle = Image.asset(
+        'assets/icon/logo_name.png',
+        height: 40,
+      );
+    } else {
+      appBarTitle = Center(
         child: Image.asset(
           'assets/icon/logo_name.png',
           height: 40,
         ),
-      ),
+      );
+    }
+    return AppBar(
+      backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+      title: appBarTitle,
     );
   }
 }
