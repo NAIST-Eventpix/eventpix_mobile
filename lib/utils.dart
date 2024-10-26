@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 import 'package:intl/intl.dart';
@@ -7,13 +8,15 @@ final Logger logger = Logger('Eventpix');
 void setupLogging() {
   Logger.root.level = Level.ALL;
   Logger.root.onRecord.listen((record) {
-    print('${record.level.name}: ${record.time}: ${record.message}');
+    if(kDebugMode) {
+      print('${record.level.name}: ${record.time}: ${record.message}');
+    }
   });
 }
 
 typedef Json = Map<String, dynamic>;
 
-const String API_DOMAIN = 'eventpix.jp';
+const String apiDomain = 'eventpix.jp';
 
 class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override

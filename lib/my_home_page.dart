@@ -50,7 +50,7 @@ class MyHomePageState extends State<MyHomePage> {
     try {
       http.MultipartRequest request = http.MultipartRequest(
         'POST',
-        Uri.https(API_DOMAIN, '/pick_schedule_from_image'),
+        Uri.https(apiDomain, '/pick_schedule_from_image'),
       );
 
       request.files.add(
@@ -66,10 +66,12 @@ class MyHomePageState extends State<MyHomePage> {
       json = jsonDecode(utf8.decode(response.bodyBytes));
     } catch (e) {
       json = {'error': e.toString(),};
-    } finally {
-      Navigator.of(context).pop();
-    }
+    } 
+      
     logger.fine('API Result  : ${json.toString()}');
+    
+    if (!mounted) return json;
+    Navigator.of(context).pop();
     return json;
   }
 

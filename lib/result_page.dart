@@ -50,6 +50,8 @@ class ResultPage extends StatelessWidget {
       return;
     }
 
+    if (!context.mounted) return;
+    
     final Calendar? calendar = await selectCalendar(context, calendarsResult.data!.toList());
 
     if (calendar == null) {
@@ -75,6 +77,8 @@ class ResultPage extends StatelessWidget {
         logger.severe("イベントの追加に失敗しました: ${event.title}");
       }
     }
+
+    if (!context.mounted) return;
 
     showDialog(
       context: context,
