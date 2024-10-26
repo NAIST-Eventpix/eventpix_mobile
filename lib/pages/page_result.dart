@@ -132,17 +132,15 @@ class PageResult extends StatelessWidget {
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
           child: Column(
-            children: children +
-                [
-                  ElevatedButton(
-                    onPressed: () {
-                      registCalendar(context, json);
-                    },
-                    child: const Text('カレンダーに登録'),
-                  ),
-                ],
+            children: children,
           ),
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          registCalendar(context, json);
+        },
+        child: const Icon(Icons.calendar_month),
       ),
     );
   }

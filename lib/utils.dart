@@ -76,16 +76,48 @@ class EventCard extends StatelessWidget {
     required this.location,
   });
 
+  bool isSameDay(DateTime a, DateTime b) {
+    return a.year == b.year && a.month == b.month && a.day == b.day;
+  }
+
   @override
   Widget build(BuildContext context) {
     String fStart = DateFormat('yyyy/MM/dd HH:mm').format(start);
     String fEnd = DateFormat('yyyy/MM/dd HH:mm').format(end);
+    String fDate;
+    if(isSameDay(start, end)) {
+      fDate = '$fStart ~ ${DateFormat('HH:mm').format(end)}';
+    } else {
+      fDate = '$fStart ~ $fEnd';
+    }
     return Card(
       child: Column(
         children: <Widget>[
           ListTile(
-            title: Text(title),
-            subtitle: Text('$description\n$fStart ~ $fEnd\n@ $location'),
+            title: Text(
+              title,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  description,
+                  style: const TextStyle(fontSize: 12),
+                ),
+                Text(
+                  fDate,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  '@ $location',
+                   style: const TextStyle(fontSize: 12),
+                ),
+              ],
+            ),
           ),
         ],
       ),
