@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 typedef Json = Map<String, dynamic>;
 
-const API_URL = 'https://eventpix.jp/';
+const String API_DOMAIN = 'eventpix.jp';
 
 class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override

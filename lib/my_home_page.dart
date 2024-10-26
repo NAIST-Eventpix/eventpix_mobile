@@ -21,7 +21,7 @@ class MyHomePageState extends State<MyHomePage> {
     try {
       http.MultipartRequest request = http.MultipartRequest(
         'POST',
-        Uri.parse('http://localhost:8000/pick_schedule_from_image'),
+        Uri.https(API_DOMAIN, '/pick_schedule_from_image'),
       );
 
       request.files.add(
