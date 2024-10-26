@@ -14,15 +14,6 @@ class PageResult extends StatelessWidget {
 
   Future<Calendar?> selectCalendar(
       BuildContext context, Map<String?, List<Calendar>> groupedCalendars) async {
-    // for (var calendar in calendars) {
-    //   print('ID: ${calendar.id}');
-    //   print('Name: ${calendar.name}');
-    //   print('Account Name: ${calendar.accountName}');
-    //   print('Is Read Only: ${calendar.isReadOnly}');
-    //   print('Is Default: ${calendar.isDefault}');
-    //   print('Color: ${calendar.color?.toRadixString(16)}'); // 色を16進数で表示
-    //   print(' ');
-    // }
 
     return await showDialog<Calendar>(
       context: context,
@@ -31,12 +22,38 @@ class PageResult extends StatelessWidget {
           title: const Text('カレンダー選択'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               for (var entry in groupedCalendars.entries) ...[
-                Text(entry.key ?? '無名のアカウント'),
+                Text(
+                  entry.key ?? '無名のアカウント',
+                  style: const TextStyle(fontSize: 20),
+                ),
+                const SizedBox(height: 8),
                 for (var calendar in entry.value)
-                  ListTile(
-                    title: Text(calendar.name ?? '無名のカレンダー'),
+                  GestureDetector(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Container(
+                            width: 16,
+                            height: 16,
+                            decoration: BoxDecoration(
+                              color: Color(calendar.color ?? 0xff0000),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            calendar.name ?? '無名のカレンダー',
+                            style: const TextStyle(fontSize: 16),
+                          ),
+                        ],
+                      ),
+                    ),
                     onTap: () {
                       Navigator.of(context).pop(calendar);
                     },
