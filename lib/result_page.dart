@@ -11,7 +11,7 @@ class ResultPage extends StatelessWidget {
 
   const ResultPage({super.key, required this.json});
 
-  void registCalendar(Json json) async {
+  void registCalendar(BuildContext context, Json json) async {
     var permissionsGranted = await _deviceCalendarPlugin.hasPermissions();
     if (permissionsGranted.isSuccess && !permissionsGranted.data!) {
       permissionsGranted = await _deviceCalendarPlugin.requestPermissions();
@@ -49,6 +49,24 @@ class ResultPage extends StatelessWidget {
         logger.severe("イベントの追加に失敗しました: ${event.title}");
       }
     }
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('成功'),
+          content: const Text('カレンダーの登録に成功しました！'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // ダイアログを閉じる
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -75,7 +93,7 @@ class ResultPage extends StatelessWidget {
           child: Column(
             children: children + [
               ElevatedButton(
-                onPressed: () {registCalendar(json);},
+                onPressed: () {registCalendar(context, json);},
                 child: const Text('カレンダーに登録'),
               ),
             ],
