@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
+import 'package:intl/intl.dart';
 
 final Logger logger = Logger('Eventpix');
 
@@ -61,19 +62,14 @@ class EventCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    String fStart = DateFormat('yyyy/MM/dd HH:mm').format(start);
+    String fEnd = DateFormat('yyyy/MM/dd HH:mm').format(end);
     return Card(
       child: Column(
         children: <Widget>[
           ListTile(
             title: Text(title),
-            subtitle: Text(description),
-          ),
-          ListTile(
-            title: Text('開始: $start'),
-            subtitle: Text('終了: $end'),
-          ),
-          ListTile(
-            title: Text('場所: $location'),
+            subtitle: Text('$description\n$fStart ~ $fEnd\n@ $location'),
           ),
         ],
       ),
