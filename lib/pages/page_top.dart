@@ -7,15 +7,15 @@ import 'dart:convert';
 import 'page_result.dart';
 import '../utils.dart';
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+class PageTop extends StatefulWidget {
+  const PageTop({super.key, required this.title});
   final String title;
 
   @override
-  MyHomePageState createState() => MyHomePageState();
+  StatePageTop createState() => StatePageTop();
 }
 
-class MyHomePageState extends State<MyHomePage> {
+class StatePageTop extends State<PageTop> {
   final picker = ImagePicker();
 
   Future<Json> apiRequest(XFile pickedFile) async {
@@ -88,7 +88,7 @@ class MyHomePageState extends State<MyHomePage> {
       Navigator.push(
           context,
           NoAnimationPageRoute(
-            builder: (context) => ResultPage(json: json),
+            builder: (context) => PageResult(json: json),
           ));
     }
   }

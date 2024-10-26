@@ -6,10 +6,10 @@ import '../utils.dart';
 
 final DeviceCalendarPlugin _deviceCalendarPlugin = DeviceCalendarPlugin();
 
-class ResultPage extends StatelessWidget {
+class PageResult extends StatelessWidget {
   final Json json;
 
-  const ResultPage({super.key, required this.json});
+  const PageResult({super.key, required this.json});
 
   Future<Calendar?> selectCalendar(
       BuildContext context, List<Calendar> calendars) async {
