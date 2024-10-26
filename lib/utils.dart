@@ -29,7 +29,7 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     Widget appBarTitle;
-    Widget image = GestureDetector(
+    Widget image = InkWell(
       child: Image.asset(
         'assets/icon/logo_name.png',
         height: 40,

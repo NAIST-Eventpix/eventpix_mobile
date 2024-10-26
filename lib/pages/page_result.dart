@@ -31,7 +31,7 @@ class PageResult extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 for (var calendar in entry.value)
-                  GestureDetector(
+                  InkWell(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
                       child: Row(
