@@ -7,6 +7,10 @@ class ResultPage extends StatelessWidget {
 
   const ResultPage({super.key, required this.json});
 
+  void registCalendar(Json json) {
+    
+  }
+
   @override
   Widget build(BuildContext context) {
     var children = <Widget>[const Text('変換結果')];
@@ -27,7 +31,12 @@ class ResultPage extends StatelessWidget {
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
           child: Column(
-            children: children,
+            children: children + [
+              ElevatedButton(
+                onPressed: () {registCalendar(json);},
+                child: const Text('カレンダーに登録'),
+              ),
+            ],
           ),
         ),
       ),
