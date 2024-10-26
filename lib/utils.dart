@@ -61,7 +61,7 @@ class NoAnimationPageRoute<T> extends MaterialPageRoute<T> {
   }
 }
 
-class EventCard extends StatelessWidget {
+class EventCard extends StatefulWidget {
   final String title;
   final String description;
   final DateTime start;
@@ -77,8 +77,76 @@ class EventCard extends StatelessWidget {
     required this.location,
   });
 
+  @override
+  _EventCardState createState() => _EventCardState();
+}
+
+class _EventCardState extends State<EventCard> {
+  late String title;
+  late String description;
+  late DateTime start;
+  late DateTime end;
+  late String location;
+
+  @override
+  void initState() {
+    super.initState();
+    title = widget.title;
+    description = widget.description;
+    start = widget.start;
+    end = widget.end;
+    location = widget.location;
+  }
+
   bool isSameDay(DateTime a, DateTime b) {
     return a.year == b.year && a.month == b.month && a.day == b.day;
+  }
+
+  void showEditDialog() {
+    final titleController = TextEditingController(text: title);
+    final descriptionController = TextEditingController(text: description);
+    final locationController = TextEditingController(text: location);
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('イベントを編集'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: titleController,
+              decoration: const InputDecoration(labelText: 'タイトル'),
+            ),
+            TextField(
+              controller: descriptionController,
+              decoration: const InputDecoration(labelText: '説明'),
+            ),
+            TextField(
+              controller: locationController,
+              decoration: const InputDecoration(labelText: '場所'),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('キャンセル'),
+          ),
+          TextButton(
+            onPressed: () {
+              setState(() {
+                title = titleController.text;
+                description = descriptionController.text;
+                location = locationController.text;
+              });
+              Navigator.of(context).pop();
+            },
+            child: const Text('保存'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -86,41 +154,44 @@ class EventCard extends StatelessWidget {
     String fStart = DateFormat('yyyy/MM/dd HH:mm').format(start);
     String fEnd = DateFormat('yyyy/MM/dd HH:mm').format(end);
     String fDate;
-    if(isSameDay(start, end)) {
+    if (isSameDay(start, end)) {
       fDate = '$fStart ~ ${DateFormat('HH:mm').format(end)}';
     } else {
       fDate = '$fStart ~ $fEnd';
     }
-    return Card(
-      child: Column(
-        children: <Widget>[
-          ListTile(
-            title: Text(
-              title,
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  description,
-                  style: const TextStyle(fontSize: 12),
-                ),
-                Text(
-                  fDate,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
+    return GestureDetector(
+      onTap: showEditDialog,
+      child: Card(
+        child: Column(
+          children: <Widget>[
+            ListTile(
+              title: Text(
+                title,
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    description,
+                    style: const TextStyle(fontSize: 12),
                   ),
-                ),
-                Text(
-                  '@ $location',
-                   style: const TextStyle(fontSize: 12),
-                ),
-              ],
+                  Text(
+                    fDate,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    '@ $location',
+                    style: const TextStyle(fontSize: 12),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
