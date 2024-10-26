@@ -42,3 +42,41 @@ class NoAnimationPageRoute<T> extends MaterialPageRoute<T> {
     return child;
   }
 }
+
+class EventCard extends StatelessWidget {
+  final String title;
+  final String description;
+  final DateTime start;
+  final DateTime end;
+  final String location;
+
+  const EventCard({
+    super.key,
+    required this.title,
+    required this.description,
+    required this.start,
+    required this.end,
+    required this.location,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Column(
+        children: <Widget>[
+          ListTile(
+            title: Text(title),
+            subtitle: Text(description),
+          ),
+          ListTile(
+            title: Text('開始: $start'),
+            subtitle: Text('終了: $end'),
+          ),
+          ListTile(
+            title: Text('場所: $location'),
+          ),
+        ],
+      ),
+    );
+  }
+}

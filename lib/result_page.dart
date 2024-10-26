@@ -9,32 +9,26 @@ class ResultPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var children = <Widget>[const Text('変換結果')];
+    for (var event in json['events']) {
+      children.add(
+        EventCard(
+          title: event['summary'],
+          description: event['description'],
+          start: DateTime.parse(event['dtstart']),
+          end: DateTime.parse(event['dtend']),
+          location: event['location'],
+        ),
+      );
+    }
     return Scaffold(
       appBar: const MyAppBar(),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: <Widget>[
-            const Text('変換結果'),
-            DataTable(
-              columns: const [
-                DataColumn(label: Text("Summary")),
-                DataColumn(label: Text("Description")),
-                DataColumn(label: Text("DT Start")),
-                DataColumn(label: Text("DT End")),
-                DataColumn(label: Text("Location")),
-              ],
-              rows: json['events'].map<DataRow>((event) {
-                return DataRow(cells: [
-                  DataCell(Text(event['summary'])),
-                  DataCell(Text(event['description'])),
-                  DataCell(Text(event['dtstart'])),
-                  DataCell(Text(event['dtend'])),
-                  DataCell(Text(event['location'])),
-                ]);
-              }).toList(),
-            )
-          ],
+        child: SingleChildScrollView(
+          child: Column(
+            children: children,
+          ),
         ),
       ),
     );
