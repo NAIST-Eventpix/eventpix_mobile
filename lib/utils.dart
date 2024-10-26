@@ -78,10 +78,10 @@ class EventCard extends StatefulWidget {
   });
 
   @override
-  _EventCardState createState() => _EventCardState();
+  EventCardState createState() => EventCardState();
 }
 
-class _EventCardState extends State<EventCard> {
+class EventCardState extends State<EventCard> {
   late String title;
   late String description;
   late DateTime start;
