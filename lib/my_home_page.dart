@@ -82,10 +82,11 @@ class MyHomePageState extends State<MyHomePage> {
       if (!mounted) return;
 
       Navigator.push(
-          context,
-          NoAnimationPageRoute(
-            builder: (context) => ImageDisplayPage(json: json),
-          ));
+        context,
+        NoAnimationPageRoute(
+          builder: (context) => ImageDisplayPage(json: json),
+        )
+      );
     }
   }
 
