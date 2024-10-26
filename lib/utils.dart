@@ -119,6 +119,7 @@ class _EventCardState extends State<EventCard> {
               decoration: const InputDecoration(labelText: 'タイトル'),
             ),
             TextField(
+              maxLines: null,
               controller: descriptionController,
               decoration: const InputDecoration(labelText: '説明'),
             ),
