@@ -18,6 +18,33 @@ class MyHomePageState extends State<MyHomePage> {
   final picker = ImagePicker();
 
   Future<Json> apiRequest(XFile pickedFile) async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => Dialog(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              const CircularProgressIndicator(),
+              const SizedBox(height: 16.0),
+              const Text('変換中です...'),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  Navigator.of(context).pushReplacementNamed('/');
+                },
+                child: const Text('キャンセル'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    Json json;
+
     try {
       http.MultipartRequest request = http.MultipartRequest(
         'POST',
@@ -34,13 +61,13 @@ class MyHomePageState extends State<MyHomePage> {
       var streamedResponse = await request.send();
       final response = await http.Response.fromStream(streamedResponse);
 
-      final json = jsonDecode(response.body);
-      return json;
+      json = jsonDecode(response.body);
     } catch (e) {
-      return {
-        'error': e.toString(),
-      };
+      json = {'error': e.toString(),};
+    } finally {
+      Navigator.of(context).pop();
     }
+    return json;
   }
 
   Future<void> _pickImage(ImageSource source) async {
