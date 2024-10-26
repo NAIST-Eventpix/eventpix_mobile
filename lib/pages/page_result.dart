@@ -103,7 +103,16 @@ class PageResult extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var children = <Widget>[const Text('変換結果')];
+    var children = <Widget>[
+      const Text(
+        '変換結果',
+        style: TextStyle(
+          fontSize: 24,
+          fontWeight: FontWeight.bold,
+        ), 
+      ),
+      const SizedBox(height: 16,),
+    ];
     for (var event in json['events']) {
       logger.info(event['dtstart']);
       logger.info(event['dtend']);
