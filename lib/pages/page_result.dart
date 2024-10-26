@@ -7,14 +7,35 @@ import '../utils.dart';
 
 final DeviceCalendarPlugin _deviceCalendarPlugin = DeviceCalendarPlugin();
 
-class PageResult extends StatelessWidget {
+class PageResult extends StatefulWidget {
   final Json json;
 
   const PageResult({super.key, required this.json});
 
+  @override
+  PageResultState createState() => PageResultState();
+}
+
+class PageResultState extends State<PageResult> {
+  late List<EventCard> eventCards;
+
+  @override
+  void initState() {
+    super.initState();
+    // EventCardのリストを初期化
+    eventCards = widget.json['events'].map<EventCard>((event) {
+      return EventCard(
+        title: event['summary'],
+        description: event['description'],
+        start: DateTime.parse(event['dtstart']),
+        end: DateTime.parse(event['dtend']),
+        location: event['location'],
+      );
+    }).toList();
+  }
+
   Future<Calendar?> selectCalendar(
       BuildContext context, Map<String?, List<Calendar>> groupedCalendars) async {
-
     return await showDialog<Calendar>(
       context: context,
       builder: (BuildContext context) {
@@ -66,7 +87,7 @@ class PageResult extends StatelessWidget {
     );
   }
 
-  void registCalendar(BuildContext context, Json json) async {
+  void registCalendar(BuildContext context) async {
     var permissionsGranted = await _deviceCalendarPlugin.hasPermissions();
     if (permissionsGranted.isSuccess && !permissionsGranted.data!) {
       permissionsGranted = await _deviceCalendarPlugin.requestPermissions();
@@ -88,23 +109,20 @@ class PageResult extends StatelessWidget {
       .where((calendar) => calendar.isReadOnly == false)
       .groupListsBy((calendar) => calendar.accountName);
 
-    final Calendar? calendar =
-        await selectCalendar(context, groupedCalendars);
+    final Calendar? calendar = await selectCalendar(context, groupedCalendars);
 
     if (calendar == null) {
       logger.severe("カレンダーが選択されませんでした．");
       return;
     }
 
-    for (var eventData in json['events']) {
+    for (var eventCard in eventCards) {
       final event = Event(calendar.id);
-      final DateTime dateStart = DateTime.parse(eventData['dtstart']);
-      final DateTime dateEnd = DateTime.parse(eventData['dtend']);
-      event.title = eventData['summary'];
-      event.start = tz.TZDateTime.from(dateStart, tz.local);
-      event.end = tz.TZDateTime.from(dateEnd, tz.local);
-      event.description = eventData['description'];
-      event.location = eventData['location'];
+      event.title = eventCard.title;
+      event.start = tz.TZDateTime.from(eventCard.start, tz.local);
+      event.end = tz.TZDateTime.from(eventCard.end, tz.local);
+      event.description = eventCard.description;
+      event.location = eventCard.location;
 
       // カレンダーにイベントを追加
       final result = await _deviceCalendarPlugin.createOrUpdateEvent(event);
@@ -144,23 +162,13 @@ class PageResult extends StatelessWidget {
         style: TextStyle(
           fontSize: 24,
           fontWeight: FontWeight.bold,
-        ), 
-      ),
-      const SizedBox(height: 16,),
-    ];
-    for (var event in json['events']) {
-      logger.info(event['dtstart']);
-      logger.info(event['dtend']);
-      children.add(
-        EventCard(
-          title: event['summary'],
-          description: event['description'],
-          start: DateTime.parse(event['dtstart']),
-          end: DateTime.parse(event['dtend']),
-          location: event['location'],
         ),
-      );
-    }
+      ),
+      const SizedBox(height: 16),
+    ];
+
+    children.addAll(eventCards);
+
     return Scaffold(
       appBar: const MyAppBar(),
       body: Padding(
@@ -173,7 +181,7 @@ class PageResult extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          registCalendar(context, json);
+          registCalendar(context);
         },
         child: const Icon(Icons.calendar_month),
       ),
