@@ -8,7 +8,7 @@ final Logger logger = Logger('Eventpix');
 void setupLogging() {
   Logger.root.level = Level.ALL;
   Logger.root.onRecord.listen((record) {
-    if(kDebugMode) {
+    if (kDebugMode) {
       print('${record.level.name}: ${record.time}: ${record.message}');
     }
   });
@@ -80,7 +80,8 @@ class EventCard extends StatelessWidget {
   }
 }
 
-void errorDialog(BuildContext context, String errorMessage, {VoidCallback? onRetry}) {
+void errorDialog(BuildContext context, String errorMessage,
+    {VoidCallback? onRetry}) {
   showDialog(
     context: context,
     builder: (BuildContext context) {
@@ -89,7 +90,7 @@ void errorDialog(BuildContext context, String errorMessage, {VoidCallback? onRet
         content: Text(errorMessage),
         actions: <Widget>[
           // 再試行ボタン
-          if (onRetry != null) 
+          if (onRetry != null)
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop(); // ダイアログを閉じる

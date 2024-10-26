@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:device_calendar/device_calendar.dart';
 import 'package:timezone/timezone.dart' as tz;
 
-import 'utils.dart';
+import '../utils.dart';
 
 final DeviceCalendarPlugin _deviceCalendarPlugin = DeviceCalendarPlugin();
 
@@ -11,7 +11,8 @@ class ResultPage extends StatelessWidget {
 
   const ResultPage({super.key, required this.json});
 
-  Future<Calendar?> selectCalendar(BuildContext context, List<Calendar> calendars) async {
+  Future<Calendar?> selectCalendar(
+      BuildContext context, List<Calendar> calendars) async {
     return await showDialog<Calendar>(
       context: context,
       builder: (BuildContext context) {
@@ -51,8 +52,9 @@ class ResultPage extends StatelessWidget {
     }
 
     if (!context.mounted) return;
-    
-    final Calendar? calendar = await selectCalendar(context, calendarsResult.data!.toList());
+
+    final Calendar? calendar =
+        await selectCalendar(context, calendarsResult.data!.toList());
 
     if (calendar == null) {
       logger.severe("カレンダーが選択されませんでした．");
@@ -121,12 +123,15 @@ class ResultPage extends StatelessWidget {
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
           child: Column(
-            children: children + [
-              ElevatedButton(
-                onPressed: () {registCalendar(context, json);},
-                child: const Text('カレンダーに登録'),
-              ),
-            ],
+            children: children +
+                [
+                  ElevatedButton(
+                    onPressed: () {
+                      registCalendar(context, json);
+                    },
+                    child: const Text('カレンダーに登録'),
+                  ),
+                ],
           ),
         ),
       ),

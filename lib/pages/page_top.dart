@@ -4,8 +4,8 @@ import 'package:image_picker/image_picker.dart';
 
 import 'dart:convert';
 
-import 'result_page.dart';
-import 'utils.dart';
+import 'page_result.dart';
+import '../utils.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
@@ -65,11 +65,13 @@ class MyHomePageState extends State<MyHomePage> {
 
       json = jsonDecode(utf8.decode(response.bodyBytes));
     } catch (e) {
-      json = {'error': e.toString(),};
-    } 
-      
+      json = {
+        'error': e.toString(),
+      };
+    }
+
     logger.fine('API Result  : ${json.toString()}');
-    
+
     if (!mounted) return json;
     Navigator.of(context).pop();
     return json;
@@ -84,11 +86,10 @@ class MyHomePageState extends State<MyHomePage> {
       if (!mounted) return;
 
       Navigator.push(
-        context,
-        NoAnimationPageRoute(
-          builder: (context) => ResultPage(json: json),
-        )
-      );
+          context,
+          NoAnimationPageRoute(
+            builder: (context) => ResultPage(json: json),
+          ));
     }
   }
 
