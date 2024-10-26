@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
+
 import 'dart:convert';
 
 import 'image_display_page.dart';
@@ -18,6 +19,7 @@ class MyHomePageState extends State<MyHomePage> {
   final picker = ImagePicker();
 
   Future<Json> apiRequest(XFile pickedFile) async {
+    logger.fine('API Request : Start');
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -61,12 +63,13 @@ class MyHomePageState extends State<MyHomePage> {
       var streamedResponse = await request.send();
       final response = await http.Response.fromStream(streamedResponse);
 
-      json = jsonDecode(response.body);
+      json = jsonDecode(utf8.decode(response.bodyBytes));
     } catch (e) {
       json = {'error': e.toString(),};
     } finally {
       Navigator.of(context).pop();
     }
+    logger.fine('API Result  : ${json.toString()}');
     return json;
   }
 

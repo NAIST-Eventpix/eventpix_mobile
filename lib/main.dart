@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 
 import 'my_home_page.dart';
+import 'utils.dart';
 
 void main() {
+  setupLogging();
   runApp(const MyApp());
 }
 
