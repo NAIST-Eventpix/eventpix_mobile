@@ -11,6 +11,29 @@ class ResultPage extends StatelessWidget {
 
   const ResultPage({super.key, required this.json});
 
+  Future<Calendar?> selectCalendar(BuildContext context, List<Calendar> calendars) async {
+    return await showDialog<Calendar>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('カレンダー選択'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              for (var calendar in calendars)
+                ListTile(
+                  title: Text(calendar.name ?? '無名のカレンダー'),
+                  onTap: () {
+                    Navigator.of(context).pop(calendar);
+                  },
+                ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   void registCalendar(BuildContext context, Json json) async {
     var permissionsGranted = await _deviceCalendarPlugin.hasPermissions();
     if (permissionsGranted.isSuccess && !permissionsGranted.data!) {
@@ -27,12 +50,15 @@ class ResultPage extends StatelessWidget {
       return;
     }
 
-    // デフォルトカレンダーを取得
-    final defaultCalendar = calendarsResult.data!.first;
+    final Calendar? calendar = await selectCalendar(context, calendarsResult.data!.toList());
 
-    // JSONデータからイベントを取得し、カレンダーに登録
+    if (calendar == null) {
+      logger.severe("カレンダーが選択されませんでした．");
+      return;
+    }
+
     for (var eventData in json['events']) {
-      final event = Event(defaultCalendar.id);
+      final event = Event(calendar.id);
       final DateTime dateStart = DateTime.parse(eventData['dtstart']);
       final DateTime dateEnd = DateTime.parse(eventData['dtend']);
       event.title = eventData['summary'];
