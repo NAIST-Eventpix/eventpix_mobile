@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:device_calendar/device_calendar.dart';
 import 'package:timezone/timezone.dart' as tz;
@@ -12,7 +13,17 @@ class PageResult extends StatelessWidget {
   const PageResult({super.key, required this.json});
 
   Future<Calendar?> selectCalendar(
-      BuildContext context, List<Calendar> calendars) async {
+      BuildContext context, Map<String?, List<Calendar>> groupedCalendars) async {
+    // for (var calendar in calendars) {
+    //   print('ID: ${calendar.id}');
+    //   print('Name: ${calendar.name}');
+    //   print('Account Name: ${calendar.accountName}');
+    //   print('Is Read Only: ${calendar.isReadOnly}');
+    //   print('Is Default: ${calendar.isDefault}');
+    //   print('Color: ${calendar.color?.toRadixString(16)}'); // 色を16進数で表示
+    //   print(' ');
+    // }
+
     return await showDialog<Calendar>(
       context: context,
       builder: (BuildContext context) {
@@ -21,13 +32,16 @@ class PageResult extends StatelessWidget {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              for (var calendar in calendars)
-                ListTile(
-                  title: Text(calendar.name ?? '無名のカレンダー'),
-                  onTap: () {
-                    Navigator.of(context).pop(calendar);
-                  },
-                ),
+              for (var entry in groupedCalendars.entries) ...[
+                Text(entry.key ?? '無名のアカウント'),
+                for (var calendar in entry.value)
+                  ListTile(
+                    title: Text(calendar.name ?? '無名のカレンダー'),
+                    onTap: () {
+                      Navigator.of(context).pop(calendar);
+                    },
+                  ),
+              ]
             ],
           ),
         );
@@ -53,8 +67,12 @@ class PageResult extends StatelessWidget {
 
     if (!context.mounted) return;
 
+    final groupedCalendars = calendarsResult.data!
+      .where((calendar) => calendar.isReadOnly == false)
+      .groupListsBy((calendar) => calendar.accountName);
+
     final Calendar? calendar =
-        await selectCalendar(context, calendarsResult.data!.toList());
+        await selectCalendar(context, groupedCalendars);
 
     if (calendar == null) {
       logger.severe("カレンダーが選択されませんでした．");
