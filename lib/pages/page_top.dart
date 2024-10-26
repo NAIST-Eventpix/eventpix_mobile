@@ -30,12 +30,12 @@ class StatePageTop extends State<PageTop> {
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               const CircularProgressIndicator(),
-              const SizedBox(height: 16.0),
+              const SizedBox(height: 16),
               const Text('変換中です...'),
+              const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () {
                   Navigator.of(context).pop();
-                  Navigator.of(context).pushReplacementNamed('/');
                 },
                 child: const Text('キャンセル'),
               ),
@@ -103,14 +103,24 @@ class StatePageTop extends State<PageTop> {
           children: <Widget>[
             const Text(
               'スケジュールを読み込む画像を選択してください',
+              style: TextStyle(fontSize: 16),
             ),
-            ElevatedButton(
-              onPressed: () => _pickImage(ImageSource.gallery),
-              child: const Text('ライブラリから選択する'),
+            const SizedBox(height: 32),
+            SizedBox(
+              width: 300,
+              child: ElevatedButton(
+                onPressed: () => _pickImage(ImageSource.gallery),
+                child: const Text('ライブラリから選択する'),
+              ),
             ),
-            ElevatedButton(
+            const SizedBox(height: 16),
+            SizedBox(
+              width: 300,
+              child: ElevatedButton(
                 onPressed: () => _pickImage(ImageSource.camera),
-                child: const Text('カメラで写真を撮る'))
+                child: const Text('カメラで写真を撮る')
+              ),
+            ),
           ],
         ),
       ),
