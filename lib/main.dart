@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'dart:convert';
 
-typedef Json = Map<String, dynamic>;
+import 'utils.dart';
 
 void main() {
   runApp(const MyApp());
@@ -104,24 +104,6 @@ class MyHomePageState extends State<MyHomePage> {
   }
 }
 
-class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
-  @override
-  final Size preferredSize;
-
-  const MyAppBar({super.key}) : preferredSize = const Size.fromHeight(56.0);
-
-  @override
-  Widget build(BuildContext context) {
-    return AppBar(
-      backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-      title: Image.asset(
-        'assets/icon/logo_name.png',
-        height: 40,
-      ),
-    );
-  }
-}
-
 class ImageDisplayPage extends StatelessWidget {
   final Json json;
 
@@ -135,16 +117,5 @@ class ImageDisplayPage extends StatelessWidget {
         body: Center(
           child: Text(jsonString),
         ));
-  }
-}
-
-class NoAnimationPageRoute<T> extends MaterialPageRoute<T> {
-  NoAnimationPageRoute({required super.builder});
-
-  @override
-  Widget buildTransitions(BuildContext context, Animation<double> animation,
-      Animation<double> secondaryAnimation, Widget child) {
-    // 遷移アニメーションを無効化
-    return child;
   }
 }
