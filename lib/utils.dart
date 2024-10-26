@@ -29,18 +29,19 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     Widget appBarTitle;
-    if (Platform.isIOS) {
-      appBarTitle = Image.asset(
+    Widget image = GestureDetector(
+      child: Image.asset(
         'assets/icon/logo_name.png',
         height: 40,
-      );
+      ),
+      onTap:() {
+        Navigator.of(context).pushReplacementNamed('/');
+      },
+    );
+    if (Platform.isIOS) {
+      appBarTitle = image;
     } else {
-      appBarTitle = Center(
-        child: Image.asset(
-          'assets/icon/logo_name.png',
-          height: 40,
-        ),
-      );
+      appBarTitle = Center(child: image,);
     }
     return AppBar(
       backgroundColor: Theme.of(context).colorScheme.inversePrimary,
