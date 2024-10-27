@@ -86,10 +86,29 @@ class JsonConverter {
     final Map<String, dynamic> apiJson = jsonDecode(apiJsonString);
 
     // Google Calendar API向けのJSONデータを作成
-    
+    List<Map<String, dynamic>> googleCalendarEvents = [];
+
+    for (var event in apiJson['events']) {
+      // 各イベントをGoogle Calendar形式に変換
+      final Map<String, dynamic> googleCalendarEvent = {
+        "summary": event["summary"] ?? "No Title",
+        "location": event["location"] ?? "No Location",
+        "description": event["description"] ?? "",
+        "start": {
+          "dateTime": event["dtstart"], // 開始日時
+          "timeZone": "Asia/Tokyo" // タイムゾーン (固定)
+        },
+        "end": {
+          "dateTime": event["dtend"], // 終了日時
+          "timeZone": "Asia/Tokyo" // タイムゾーン (固定)
+        }
+      };
+      // リストに追加
+      googleCalendarEvents.add(googleCalendarEvent);
+    }
 
     // 変換したJSONデータをファイルに書き込む
-    final String googleCalendarJsonString = jsonEncode(googleCalendarJson);
+    final String googleCalendarJsonString = jsonEncode(googleCalendarEvents);
     await File(outputFilePath).writeAsString(googleCalendarJsonString);
   }
 }
@@ -99,5 +118,5 @@ void main() async {
   await converter.convert('sample_event.json', 'converted_event.json');
   final api = GoogleCalendarApi('credentials.json');
   await api.authenticate();
-  await api.addEvent('sample_event.json');
+  await api.addEvent('converted_event.json');
 }
