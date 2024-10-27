@@ -31,7 +31,10 @@ class StatePageTop extends State<PageTop> {
             children: <Widget>[
               const CircularProgressIndicator(),
               const SizedBox(height: 16),
-              const Text('変換中です...'),
+              const Text(
+                '変換中です...',
+                style: TextStyle(fontSize: 24),
+              ),
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () {
