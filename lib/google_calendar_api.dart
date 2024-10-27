@@ -24,7 +24,8 @@ class GoogleCalendarApi {
 
     // トークンファイルが存在する場合、トークンを読み込む
     if (await File(_tokenFile).exists()) {
-      final Map<String, dynamic> tokenJson = jsonDecode(await File(_tokenFile).readAsString());
+      final Map<String, dynamic> tokenJson =
+          jsonDecode(await File(_tokenFile).readAsString());
       credentials = AccessCredentials(
         AccessToken(tokenJson['type'], tokenJson['data'],
             DateTime.parse(tokenJson['expiry'])),
@@ -76,7 +77,26 @@ class GoogleCalendarApi {
   }
 }
 
+// APIサーバーのJsonファイルをGoogle Calendar API向けのJsonファイルに変換する
+class JsonConverter {
+  // ファイルパスを受け取り、APIサーバーのJsonをGoogle Calendar API向けのJsonに変換するメソッド
+  Future<void> convert(String inputFilePath, String outputFilePath) async {
+    // ファイルからAPIサーバーのJSONデータを読み込む
+    final String apiJsonString = await File(inputFilePath).readAsString();
+    final Map<String, dynamic> apiJson = jsonDecode(apiJsonString);
+
+    // Google Calendar API向けのJSONデータを作成
+    
+
+    // 変換したJSONデータをファイルに書き込む
+    final String googleCalendarJsonString = jsonEncode(googleCalendarJson);
+    await File(outputFilePath).writeAsString(googleCalendarJsonString);
+  }
+}
+
 void main() async {
+  final converter = JsonConverter();
+  await converter.convert('sample_event.json', 'converted_event.json');
   final api = GoogleCalendarApi('credentials.json');
   await api.authenticate();
   await api.addEvent('sample_event.json');
