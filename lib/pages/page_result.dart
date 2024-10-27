@@ -338,15 +338,17 @@ class EventCardState extends State<EventCard> {
                   decoration: const InputDecoration(labelText: '場所'),
                   maxLines: null,
                 ),
-                TextField(
-                  controller: widget.startController,
-                  decoration: const InputDecoration(labelText: '開始日時'),
-                  maxLines: 1,
+                _buildDateTimeField(
+                  context,
+                  "開始日時",
+                  widget.startController,
+                  isDateTime: true,
                 ),
-                TextField(
-                  controller: widget.endController,
-                  decoration: const InputDecoration(labelText: '終了日時'),
-                  maxLines: 1,
+                _buildDateTimeField(
+                  context,
+                  "終了日時",
+                  widget.endController,
+                  isDateTime: true,
                 ),
               ],
             ),
@@ -374,6 +376,40 @@ class EventCardState extends State<EventCard> {
             ),
           ],
         );
+      },
+    );
+  }
+
+  Widget _buildDateTimeField(BuildContext context, String label, TextEditingController controller, {bool isDateTime = false}) {
+    return TextField(
+      controller: controller,
+      readOnly: true,
+      decoration: InputDecoration(
+        labelText: label,
+        suffixIcon: const Icon(Icons.calendar_today),
+      ),
+      onTap: () async {
+        // 日付を選択
+        final date = await showDatePicker(
+          context: context,
+          initialDate: DateTime.now(),
+          firstDate: DateTime(2000),
+          lastDate: DateTime(2100),
+        );
+
+        if (date == null) return;
+
+        // 時刻を選択
+        final time = await showTimePicker(
+          context: context,
+          initialTime: TimeOfDay.fromDateTime(DateTime.now()),
+        );
+
+        if (!mounted || time == null) return;
+
+        // 日時の選択結果をTextFieldに表示
+        final dateTime = DateTime(date.year, date.month, date.day, time.hour, time.minute);
+        controller.text = "${dateTime.year}-${dateTime.month}-${dateTime.day}T${time.format(context)}";
       },
     );
   }
