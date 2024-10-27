@@ -49,5 +49,7 @@
 	<string>スケジュール写真を読み込むために，アクセスを許可してください．</string>
 	<key>NSCameraUsageDescription</key>
 	<string>スケジュール写真を撮影するために，アクセスを許可してください．</string>
+	<key>NSCalendarsUsageDescription</key>
+	<string>スケジュールをカレンダーに登録するために，アクセスを許可してください．</string>
 </dict>
 </plist>
