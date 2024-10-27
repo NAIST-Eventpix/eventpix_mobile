@@ -27,8 +27,7 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget appBarTitle;
-    Widget image = InkWell(
+    Widget appBarTitle = InkWell(
       child: Image.asset(
         'assets/icon/logo_name.png',
         height: 40,
@@ -37,12 +36,8 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
         Navigator.of(context).pushReplacementNamed('/');
       },
     );
-    if (Platform.isIOS) {
-      appBarTitle = image;
-    } else {
-      appBarTitle = Center(child: image,);
-    }
     return AppBar(
+      centerTitle: true,
       backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       title: appBarTitle,
     );
