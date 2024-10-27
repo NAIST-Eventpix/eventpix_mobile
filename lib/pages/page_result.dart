@@ -282,8 +282,9 @@ class EventCardState extends State<EventCard> {
         child: ListTile(
           title: Text(
             summary,
-            style: const TextStyle(
+            style: TextStyle(
               fontWeight: FontWeight.bold,
+              fontSize: isLandscape(context) ? 20 : 16,
             ),
           ),
           subtitle: Column(
@@ -291,20 +292,21 @@ class EventCardState extends State<EventCard> {
             children: [
               Text(
                 description,
-                style: const TextStyle(
-                  fontSize: 14,
+                style: TextStyle(
+                  fontSize: isLandscape(context) ? 16 : 14,
                 ),
               ),
               Text(
                 fDate,
-                style: const TextStyle(
+                style: TextStyle(
                   fontWeight: FontWeight.bold,
+                  fontSize: isLandscape(context) ? 18 : 14,
                 ),
               ),
               Text(
                 '@ $location',
-                style: const TextStyle(
-                  fontSize: 14,
+                style: TextStyle(
+                  fontSize: isLandscape(context) ? 16 : 14,
                 ),
               ),
             ],
