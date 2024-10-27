@@ -1,9 +1,6 @@
-import 'dart:io';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
-import 'package:intl/intl.dart';
 
 final Logger logger = Logger('Eventpix');
 
@@ -28,8 +25,7 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget appBarTitle;
-    Widget image = InkWell(
+    Widget appBarTitle = InkWell(
       child: Image.asset(
         'assets/icon/logo_name.png',
         height: 40,
@@ -38,12 +34,8 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
         Navigator.of(context).pushReplacementNamed('/');
       },
     );
-    if (Platform.isIOS) {
-      appBarTitle = image;
-    } else {
-      appBarTitle = Center(child: image,);
-    }
     return AppBar(
+      centerTitle: true,
       backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       title: appBarTitle,
     );
@@ -58,71 +50,6 @@ class NoAnimationPageRoute<T> extends MaterialPageRoute<T> {
       Animation<double> secondaryAnimation, Widget child) {
     // 遷移アニメーションを無効化
     return child;
-  }
-}
-
-class EventCard extends StatelessWidget {
-  final String title;
-  final String description;
-  final DateTime start;
-  final DateTime end;
-  final String location;
-
-  const EventCard({
-    super.key,
-    required this.title,
-    required this.description,
-    required this.start,
-    required this.end,
-    required this.location,
-  });
-
-  bool isSameDay(DateTime a, DateTime b) {
-    return a.year == b.year && a.month == b.month && a.day == b.day;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    String fStart = DateFormat('yyyy/MM/dd HH:mm').format(start);
-    String fEnd = DateFormat('yyyy/MM/dd HH:mm').format(end);
-    String fDate;
-    if(isSameDay(start, end)) {
-      fDate = '$fStart ~ ${DateFormat('HH:mm').format(end)}';
-    } else {
-      fDate = '$fStart ~ $fEnd';
-    }
-    return Card(
-      child: Column(
-        children: <Widget>[
-          ListTile(
-            title: Text(
-              title,
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  description,
-                  style: const TextStyle(fontSize: 12),
-                ),
-                Text(
-                  fDate,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Text(
-                  '@ $location',
-                   style: const TextStyle(fontSize: 12),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
   }
 }
 
@@ -156,4 +83,8 @@ void errorDialog(BuildContext context, String errorMessage,
       );
     },
   );
+}
+
+bool isLandscape(BuildContext context) {
+  return MediaQuery.of(context).orientation == Orientation.landscape;
 }

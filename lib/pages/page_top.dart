@@ -51,7 +51,10 @@ class StatePageTop extends State<PageTop> {
             children: <Widget>[
               const CircularProgressIndicator(),
               const SizedBox(height: 16),
-              const Text('変換中です...'),
+              const Text(
+                '変換中です...',
+                style: TextStyle(fontSize: 24),
+              ),
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () {
@@ -129,24 +132,37 @@ class StatePageTop extends State<PageTop> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const Text(
+            Text(
               'スケジュールを読み込む画像を選択してください',
-              style: TextStyle(fontSize: 16),
+              style: TextStyle(fontSize: isLandscape(context) ? 24 : 16),
             ),
-            const SizedBox(height: 32),
+            SizedBox(height: isLandscape(context) ? 48 : 32),
             SizedBox(
-              width: 300,
+              width: isLandscape(context) ? 450 : 300,
               child: ElevatedButton(
                 onPressed: () => _pickImage(ImageSource.gallery),
-                child: const Text('ライブラリから選択する'),
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16)
+                ),
+                child: Text(
+                  'ライブラリから選択する',
+                  style: TextStyle(fontSize: isLandscape(context) ? 24 : 16),
+                ),
               ),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: isLandscape(context) ? 24 : 16),
             SizedBox(
-              width: 300,
+              width: isLandscape(context) ? 450 : 300,
               child: ElevatedButton(
-                  onPressed: () => _pickImage(ImageSource.camera),
-                  child: const Text('カメラで写真を撮る')),
+                onPressed: () => _pickImage(ImageSource.camera),
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16)
+                ),
+                child: Text(
+                  'カメラで写真を撮る',
+                  style: TextStyle(fontSize: isLandscape(context) ? 24 : 16),
+                ),
+              ),
             ),
           ],
         ),
