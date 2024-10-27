@@ -220,8 +220,7 @@ class PageResultState extends State<PageResult> {
   }
 }
 
-
-class EventCard extends StatelessWidget {
+class EventCard extends StatefulWidget {
   final TextEditingController summaryController;
   final TextEditingController descriptionController;
   final TextEditingController locationController;
@@ -238,37 +237,114 @@ class EventCard extends StatelessWidget {
   });
 
   @override
+  EventCardState createState() => EventCardState();
+}
+
+class EventCardState extends State<EventCard> {
+  // 表示用のテキストを保持するための変数
+  late String summary;
+  late String description;
+  late String location;
+  late String start;
+  late String end;
+
+  @override
+  void initState() {
+    super.initState();
+    // 初期値としてコントローラーの内容を設定
+    summary = widget.summaryController.text;
+    description = widget.descriptionController.text;
+    location = widget.locationController.text;
+    start = widget.startController.text;
+    end = widget.endController.text;
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            TextField(
-              controller: summaryController,
-              decoration: const InputDecoration(labelText: 'Summary'),
-            ),
-            TextField(
-              controller: descriptionController,
-              decoration: const InputDecoration(labelText: 'Description'),
-            ),
-            TextField(
-              controller: locationController,
-              decoration: const InputDecoration(labelText: 'Location'),
-            ),
-            TextField(
-              controller: startController,
-              decoration: const InputDecoration(labelText: 'Start'),
-            ),
-            TextField(
-              controller: endController,
-              decoration: const InputDecoration(labelText: 'End'),
-            ),
-          ],
+    return GestureDetector(
+      onTap: () {
+        _showEditDialog(context);
+      },
+      child: Card(
+        margin: const EdgeInsets.symmetric(vertical: 8.0),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text("Summary: $summary"),
+              Text("Description: $description"),
+              Text("Location: $location"),
+              Text("Start: $start"),
+              Text("End: $end"),
+            ],
+          ),
         ),
       ),
+    );
+  }
+
+  void _showEditDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Edit Event"),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: widget.summaryController,
+                  decoration: const InputDecoration(labelText: 'タイトル'),
+                ),
+                TextField(
+                  controller: widget.descriptionController,
+                  decoration: const InputDecoration(labelText: '説明'),
+                  maxLines: null,
+                ),
+                TextField(
+                  controller: widget.locationController,
+                  decoration: const InputDecoration(labelText: '場所'),
+                  maxLines: null,
+                ),
+                TextField(
+                  controller: widget.startController,
+                  decoration: const InputDecoration(labelText: '開始日時'),
+                  maxLines: 1,
+                ),
+                TextField(
+                  controller: widget.endController,
+                  decoration: const InputDecoration(labelText: '終了日時'),
+                  maxLines: 1,
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text("キャンセル"),
+            ),
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  // ダイアログのテキストを保存して更新
+                  summary = widget.summaryController.text;
+                  description = widget.descriptionController.text;
+                  location = widget.locationController.text;
+                  start = widget.startController.text;
+                  end = widget.endController.text;
+                });
+                Navigator.of(context).pop();
+              },
+              child: const Text("保存"),
+            ),
+          ],
+        );
+      },
     );
   }
 }
