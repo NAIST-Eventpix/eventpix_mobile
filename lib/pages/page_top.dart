@@ -8,8 +8,9 @@ import 'page_result.dart';
 import '../utils.dart';
 
 class PageTop extends StatefulWidget {
-  const PageTop({super.key, required this.title});
+  const PageTop({super.key, required this.title, this.sharedData});
   final String title;
+  final Map<String, String?>? sharedData;
 
   @override
   StatePageTop createState() => StatePageTop();
@@ -17,6 +18,31 @@ class PageTop extends StatefulWidget {
 
 class StatePageTop extends State<PageTop> {
   final picker = ImagePicker();
+
+  @override
+  void initState() {
+    super.initState();
+    _processSharedData();
+  }
+
+  void _processSharedData() {
+    if (widget.sharedData != null) {
+      final sharedImageURL = widget.sharedData!['sharedImageURL'];
+      final sharedText = widget.sharedData!['sharedText'];
+
+      if (sharedImageURL != null) {
+        // 画像URLを処理する
+        print("Shared Image URL: $sharedImageURL");
+        // ここで画像を表示したり、APIリクエストを送信したりする処理を追加
+      }
+
+      if (sharedText != null) {
+        // テキストを処理する
+        print("Shared Text: $sharedText");
+        // ここでテキストを表示したり、処理したりする処理を追加
+      }
+    }
+  }
 
   Future<Json> apiRequest(XFile pickedFile) async {
     logger.fine('API Request : Start');
