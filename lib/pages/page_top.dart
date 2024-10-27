@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
+import 'package:quick_actions/quick_actions.dart';
 
 import 'dart:convert';
 
@@ -16,6 +17,25 @@ class PageTop extends StatefulWidget {
 }
 
 class StatePageTop extends State<PageTop> {
+  String shortcut = '';
+
+  @override
+  void initState() {
+    super.initState();
+
+    const QuickActions()
+      ..initialize((String shortcutType) {
+        setState(() => shortcut = shortcutType);
+      })
+      ..setShortcutItems(<ShortcutItem>[
+        const ShortcutItem(
+          type: 'camera',
+          localizedTitle: '写真を撮る',
+          icon: 'ic_launcher',
+        ),
+      ]);
+  }
+
   final picker = ImagePicker();
 
   Future<Json> apiRequest(XFile pickedFile) async {
@@ -75,12 +95,12 @@ class StatePageTop extends State<PageTop> {
 
     logger.fine('API Result  : ${json.toString()}');
 
-    if(!mounted) return {};
+    if (!mounted) return {};
 
     if (json.containsKey('error')) {
       errorDialog(context, '変換中にエラーが発生しました．\n${json['error']}');
     }
-    
+
     Navigator.of(context).pop();
     return json;
   }
@@ -103,6 +123,9 @@ class StatePageTop extends State<PageTop> {
 
   @override
   Widget build(BuildContext context) {
+    if (shortcut == 'camera') {
+      _pickImage(ImageSource.camera);
+    }
     return Scaffold(
       appBar: const MyAppBar(),
       body: Center(
