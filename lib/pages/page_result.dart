@@ -1,6 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:device_calendar/device_calendar.dart';
+import 'package:intl/intl.dart';
 import 'package:timezone/timezone.dart' as tz;
 
 import '../utils.dart';
@@ -248,6 +249,10 @@ class EventCardState extends State<EventCard> {
   late String start;
   late String end;
 
+  bool isSameDay(DateTime a, DateTime b) {
+    return a.year == b.year && a.month == b.month && a.day == b.day;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -261,22 +266,47 @@ class EventCardState extends State<EventCard> {
 
   @override
   Widget build(BuildContext context) {
+    String fStart = DateFormat('yyyy/MM/dd HH:mm').format(DateTime.parse(start));
+    String fEnd = DateFormat('yyyy/MM/dd HH:mm').format(DateTime.parse(end));
+    String fDate;
+    if (isSameDay(DateTime.parse(start), DateTime.parse(end))) {
+      fDate = '$fStart ~ ${DateFormat('HH:mm').format(DateTime.parse(end))}';
+    } else {
+      fDate = '$fStart ~ $fEnd';
+    }
     return GestureDetector(
       onTap: () {
         _showEditDialog(context);
       },
       child: Card(
-        margin: const EdgeInsets.symmetric(vertical: 8.0),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
+        child: ListTile(
+          title: Text(
+            summary,
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          subtitle: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text("Summary: $summary"),
-              Text("Description: $description"),
-              Text("Location: $location"),
-              Text("Start: $start"),
-              Text("End: $end"),
+              Text(
+                description,
+                style: const TextStyle(
+                  fontSize: 14,
+                ),
+              ),
+              Text(
+                fDate,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Text(
+                '@ $location',
+                style: const TextStyle(
+                  fontSize: 14,
+                ),
+              ),
             ],
           ),
         ),
