@@ -2,7 +2,6 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:device_calendar/device_calendar.dart';
 import 'package:timezone/timezone.dart' as tz;
-import 'package:intl/intl.dart';
 
 import '../utils.dart';
 
@@ -58,7 +57,9 @@ class PageResultState extends State<PageResult> {
   void dispose() {
     // 各コントローラーを破棄
     for (var controllerMap in controllers) {
-      controllerMap.values.forEach((controller) => controller.dispose());
+      for (var controller in controllerMap.values) {
+        controller.dispose();
+      }
     }
     super.dispose();
   }
