@@ -39,7 +39,6 @@ class GoogleCalendarApi {
       var client = await clientViaUserConsent(clientId, _scopes, (url) {
         print('Please go to the following URL:');
         print('  => $url');
-        print('Enter the verification code:');
       });
 
       credentials = client.credentials;
@@ -85,37 +84,33 @@ class JsonConverter {
     final String apiJsonString = await File(inputFilePath).readAsString();
     final Map<String, dynamic> apiJson = jsonDecode(apiJsonString);
 
-    // Google Calendar API向けのJSONデータを作成
-    List<Map<String, dynamic>> googleCalendarEvents = [];
-
-    for (var event in apiJson['events']) {
-      // 各イベントをGoogle Calendar形式に変換
-      final Map<String, dynamic> googleCalendarEvent = {
-        "summary": event["summary"] ?? "No Title",
-        "location": event["location"] ?? "No Location",
-        "description": event["description"] ?? "",
-        "start": {
-          "dateTime": event["dtstart"], // 開始日時
-          "timeZone": "Asia/Tokyo" // タイムゾーン (固定)
-        },
-        "end": {
-          "dateTime": event["dtend"], // 終了日時
-          "timeZone": "Asia/Tokyo" // タイムゾーン (固定)
-        }
-      };
-      // リストに追加
-      googleCalendarEvents.add(googleCalendarEvent);
-    }
+    // Google Calendar API向けのJSON形式に変換
+    final Map<String, dynamic> googleCalendarJson = {
+      'summary': apiJson['summary'],
+      'location': apiJson['location'],
+      'description': apiJson['description'],
+      'start': {
+        'dateTime': '${apiJson['dtstart']}:00+09:00',
+        'timeZone': 'Asia/Tokyo'
+      },
+      'end': {
+        'dateTime': '${apiJson['dtend']}:00+09:00',
+        'timeZone': 'Asia/Tokyo'
+      }
+    };
 
     // 変換したJSONデータをファイルに書き込む
-    final String googleCalendarJsonString = jsonEncode(googleCalendarEvents);
+    final String googleCalendarJsonString = jsonEncode(googleCalendarJson);
     await File(outputFilePath).writeAsString(googleCalendarJsonString);
   }
 }
 
 void main() async {
+  // APIサーバーのJsonファイルをGoogle Calendar API向けのJsonファイルに変換
   final converter = JsonConverter();
   await converter.convert('sample_event.json', 'converted_event.json');
+
+  // Google Calendar APIにアクセス
   final api = GoogleCalendarApi('credentials.json');
   await api.authenticate();
   await api.addEvent('converted_event.json');
