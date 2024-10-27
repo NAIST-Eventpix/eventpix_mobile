@@ -18,21 +18,49 @@ class PageResult extends StatefulWidget {
 }
 
 class PageResultState extends State<PageResult> {
-  late List<EventCard> eventCards;
+  List<Map<String, TextEditingController>> controllers = [];
 
   @override
   void initState() {
     super.initState();
+    // 各イベントのコントローラーを初期化してリスナーを設定
+    for (var event in widget.json['events']) {
+      final controllerMap = {
+        'summary': TextEditingController(text: event['summary']),
+        'description': TextEditingController(text: event['description']),
+        'location': TextEditingController(text: event['location']),
+        'dtstart': TextEditingController(text: event['dtstart']),
+        'dtend': TextEditingController(text: event['dtend']),
+      };
+
+      // 各コントローラーにリスナーを追加して、jsonデータを更新
+      controllerMap.forEach((key, controller) {
+        controller.addListener(() {
+          event[key] = controller.text;
+        });
+      });
+
+      controllers.add(controllerMap);
+    }    
     // EventCardのリストを初期化
-    eventCards = widget.json['events'].map<EventCard>((event) {
-      return EventCard(
-        title: event['summary'],
-        description: event['description'],
-        start: DateTime.parse(event['dtstart']),
-        end: DateTime.parse(event['dtend']),
-        location: event['location'],
-      );
-    }).toList();
+    // eventCards = widget.json['events'].map<EventCard>((event) {
+    //   return EventCard(
+    //     title: event['summary'],
+    //     description: event['description'],
+    //     start: DateTime.parse(event['dtstart']),
+    //     end: DateTime.parse(event['dtend']),
+    //     location: event['location'],
+    //   );
+    // }).toList();
+  }
+
+  @override
+  void dispose() {
+    // 各コントローラーを破棄
+    for (var controllerMap in controllers) {
+      controllerMap.values.forEach((controller) => controller.dispose());
+    }
+    super.dispose();
   }
 
   Future<Calendar?> selectCalendar(
@@ -117,13 +145,13 @@ class PageResultState extends State<PageResult> {
       return;
     }
 
-    for (var eventCard in eventCards) {
+    for (var e in widget.json['events']) {
       final event = Event(calendar.id);
-      event.title = eventCard.title;
-      event.start = tz.TZDateTime.from(eventCard.start, tz.local);
-      event.end = tz.TZDateTime.from(eventCard.end, tz.local);
-      event.description = eventCard.description;
-      event.location = eventCard.location;
+      event.title = e['summary'];
+      event.start = tz.TZDateTime.from(DateTime.parse(e['dtstart']), tz.local);
+      event.end = tz.TZDateTime.from(DateTime.parse(e['dtend']), tz.local);
+      event.description = e['description'];
+      event.location = e['location'];
 
       // カレンダーにイベントを追加
       final result = await _deviceCalendarPlugin.createOrUpdateEvent(event);
@@ -157,26 +185,37 @@ class PageResultState extends State<PageResult> {
 
   @override
   Widget build(BuildContext context) {
-    var children = <Widget>[
-      const Text(
-        '変換結果',
-        style: TextStyle(
-          fontSize: 24,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-      const SizedBox(height: 16),
-    ];
-
-    children.addAll(eventCards);
-
     return Scaffold(
       appBar: const MyAppBar(),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
           child: Column(
-            children: children,
+            children: [
+              const Text(
+                '変換結果',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 16),
+              ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: controllers.length,
+                itemBuilder: (context, index) {
+                  final eventControllers = controllers[index];
+                  return EventCard(
+                    summaryController: eventControllers['summary']!,
+                    descriptionController: eventControllers['description']!,
+                    locationController: eventControllers['location']!,
+                    startController: eventControllers['dtstart']!,
+                    endController: eventControllers['dtend']!,
+                  );
+                },
+              )
+            ],
           ),
         ),
       ),
@@ -191,135 +230,50 @@ class PageResultState extends State<PageResult> {
 }
 
 
-class EventCard extends StatefulWidget {
-  final String title;
-  final String description;
-  final DateTime start;
-  final DateTime end;
-  final String location;
+class EventCard extends StatelessWidget {
+  final TextEditingController summaryController;
+  final TextEditingController descriptionController;
+  final TextEditingController locationController;
+  final TextEditingController startController;
+  final TextEditingController endController;
 
   const EventCard({
     super.key,
-    required this.title,
-    required this.description,
-    required this.start,
-    required this.end,
-    required this.location,
+    required this.summaryController,
+    required this.descriptionController,
+    required this.locationController,
+    required this.startController,
+    required this.endController,
   });
 
   @override
-  EventCardState createState() => EventCardState();
-}
-
-class EventCardState extends State<EventCard> {
-  late String title;
-  late String description;
-  late DateTime start;
-  late DateTime end;
-  late String location;
-
-  @override
-  void initState() {
-    super.initState();
-    title = widget.title;
-    description = widget.description;
-    start = widget.start;
-    end = widget.end;
-    location = widget.location;
-  }
-
-  bool isSameDay(DateTime a, DateTime b) {
-    return a.year == b.year && a.month == b.month && a.day == b.day;
-  }
-
-  void showEditDialog() {
-    final titleController = TextEditingController(text: title);
-    final descriptionController = TextEditingController(text: description);
-    final locationController = TextEditingController(text: location);
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('イベントを編集'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
+  Widget build(BuildContext context) {
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             TextField(
-              controller: titleController,
-              decoration: const InputDecoration(labelText: 'タイトル'),
+              controller: summaryController,
+              decoration: const InputDecoration(labelText: 'Summary'),
             ),
             TextField(
-              maxLines: null,
               controller: descriptionController,
-              decoration: const InputDecoration(labelText: '説明'),
+              decoration: const InputDecoration(labelText: 'Description'),
             ),
             TextField(
               controller: locationController,
-              decoration: const InputDecoration(labelText: '場所'),
+              decoration: const InputDecoration(labelText: 'Location'),
             ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('キャンセル'),
-          ),
-          TextButton(
-            onPressed: () {
-              setState(() {
-                title = titleController.text;
-                description = descriptionController.text;
-                location = locationController.text;
-              });
-              Navigator.of(context).pop();
-            },
-            child: const Text('保存'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    String fStart = DateFormat('yyyy/MM/dd HH:mm').format(start);
-    String fEnd = DateFormat('yyyy/MM/dd HH:mm').format(end);
-    String fDate;
-    if (isSameDay(start, end)) {
-      fDate = '$fStart ~ ${DateFormat('HH:mm').format(end)}';
-    } else {
-      fDate = '$fStart ~ $fEnd';
-    }
-    return GestureDetector(
-      onTap: showEditDialog,
-      child: Card(
-        child: Column(
-          children: <Widget>[
-            ListTile(
-              title: Text(
-                title,
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-              subtitle: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    description,
-                    style: const TextStyle(fontSize: 12),
-                  ),
-                  Text(
-                    fDate,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Text(
-                    '@ $location',
-                    style: const TextStyle(fontSize: 12),
-                  ),
-                ],
-              ),
+            TextField(
+              controller: startController,
+              decoration: const InputDecoration(labelText: 'Start'),
+            ),
+            TextField(
+              controller: endController,
+              decoration: const InputDecoration(labelText: 'End'),
             ),
           ],
         ),
