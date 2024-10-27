@@ -84,3 +84,7 @@ void errorDialog(BuildContext context, String errorMessage,
     },
   );
 }
+
+bool isLandscape(BuildContext context) {
+  return MediaQuery.of(context).orientation == Orientation.landscape;
+}
