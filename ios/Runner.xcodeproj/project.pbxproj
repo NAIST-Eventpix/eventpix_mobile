@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 54;
+	objectVersion = 56;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -97,9 +97,9 @@
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
-/* Begin PBXFileSystemSynchronizedRootGroup section */
-		41DCD1B22CCDC75F00E6779E /* eventpixShareEx */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (41DCD1BC2CCDC75F00E6779E /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = eventpixShareEx; sourceTree = "<group>"; };
-/* End PBXFileSystemSynchronizedRootGroup section */
+/* Begin PBXGroup section */
+		41DCD1B22CCDC75F00E6779E /* eventpixShareEx */ = {isa = PBXGroup; exceptions = (41DCD1BC2CCDC75F00E6779E /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = eventpixShareEx; sourceTree = "<group>"; };
+/* End PBXGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		071A3B84D786A589B9927854 /* Frameworks */ = {
