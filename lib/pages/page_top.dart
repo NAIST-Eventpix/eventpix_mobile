@@ -17,7 +17,7 @@ class PageTop extends StatefulWidget {
 }
 
 class StatePageTop extends State<PageTop> {
-  late String shortcut;
+  String shortcut = '';
 
   @override
   void initState() {
@@ -29,13 +29,11 @@ class StatePageTop extends State<PageTop> {
       })
       ..setShortcutItems(<ShortcutItem>[
         const ShortcutItem(
-          type: 'action_one',
+          type: 'camera',
           localizedTitle: '写真を撮る',
           icon: 'ic_launcher',
         ),
-      ]).then((void _) {
-        _pickImage(ImageSource.camera);
-      });
+      ]);
   }
 
   final picker = ImagePicker();
@@ -122,6 +120,9 @@ class StatePageTop extends State<PageTop> {
 
   @override
   Widget build(BuildContext context) {
+    if (shortcut == 'camera') {
+      _pickImage(ImageSource.camera);
+    }
     return Scaffold(
       appBar: const MyAppBar(),
       body: Center(
