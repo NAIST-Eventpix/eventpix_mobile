@@ -12,6 +12,10 @@
 
 !["flutter doctor" の成功画面](/docs/assets/flutter_doctor.png)
 
+## GoogleカレンダーAPIの認証ファイル
+予定をGoogle Calendarに登録する場合に必要となり，組織アカウントのみに対応しています．
+Google Calendar APIのドキュメントをもとに，credentials.jsonを作成し，プロジェクトのルートディレクトリに配置してください．
+https://developers.google.com/calendar/api/quickstart/python?hl=ja
 ## 実機のセットアップ (実機デバッグする場合)
 
 実機でデバッグを行う場合，開発者モードをONにする必要があります．
