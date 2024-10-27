@@ -41,16 +41,6 @@ class PageResultState extends State<PageResult> {
 
       controllers.add(controllerMap);
     }    
-    // EventCardのリストを初期化
-    // eventCards = widget.json['events'].map<EventCard>((event) {
-    //   return EventCard(
-    //     title: event['summary'],
-    //     description: event['description'],
-    //     start: DateTime.parse(event['dtstart']),
-    //     end: DateTime.parse(event['dtend']),
-    //     location: event['location'],
-    //   );
-    // }).toList();
   }
 
   @override
