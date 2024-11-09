@@ -5,7 +5,7 @@ publish_to: 'none'
 version: 0.0.1+1
 
 environment:
-  sdk: ^3.5.4
+  sdk: ^3.5.3
 
 dependencies:
   flutter:
@@ -16,18 +16,20 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^4.0.0
-  flutter_launcher_icons: ^0.13.1
+  flutter_launcher_icons: ^0.14.1
 
 flutter:
   uses-material-design: true
   assets:
     - assets/icon/logo_adaptive.png
+    - assets/icon/logo_dark.png
     - assets/icon/logo_name.png
     - assets/icon/logo_square.png
 
-flutter_icons:
+flutter_launcher_icons:
   android: true
   ios: true
   image_path: "assets/icon/logo_square.png"
+  image_path_ios_dark_transparent: "assets/icon/logo_dark.png"
   adaptive_icon_foreground: "assets/icon/logo_adaptive.png"
   adaptive_icon_background: "#FF6700"
