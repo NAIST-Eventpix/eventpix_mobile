@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'widgets/app_bar_eventpix.dart';
+import 'package:eventpix_mobile/widgets/app_bar_eventpix.dart';
 
 void main() {
   runApp(const MyApp());
