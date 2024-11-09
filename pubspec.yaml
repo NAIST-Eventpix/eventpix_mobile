@@ -90,9 +90,12 @@ flutter:
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
   assets:
+    - assets/icon/logo_adaptive.png
     - assets/icon/logo_square.png
 
 flutter_icons:
   android: true
   ios: true
   image_path: "assets/icon/logo_square.png"
+  adaptive_icon_foreground: "assets/icon/logo_adaptive.png"
+  adaptive_icon_background: "#FF6700"
