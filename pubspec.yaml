@@ -1,4 +1,4 @@
-name: Eventpix
+name: eventpix_mobile
 description: "Mobile app that extracts schedules from images and automatically registers them to a calendar."
 publish_to: 'none' 
 
