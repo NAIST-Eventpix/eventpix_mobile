@@ -1,8 +1,8 @@
-name: eventpix_mobile
-description: "A new Flutter project."
+name: Eventpix
+description: "Mobile app that extracts schedules from images and automatically registers them to a calendar."
 publish_to: 'none' 
 
-version: 1.0.0+1
+version: 0.0.1+1
 
 environment:
   sdk: ^3.5.4
