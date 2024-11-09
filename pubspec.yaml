@@ -91,6 +91,7 @@ flutter:
   # see https://flutter.dev/to/font-from-package
   assets:
     - assets/icon/logo_adaptive.png
+    - assets/icon/logo_name.png
     - assets/icon/logo_square.png
 
 flutter_icons:
