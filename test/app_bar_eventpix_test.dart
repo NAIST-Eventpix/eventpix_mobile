@@ -7,9 +7,9 @@ void main() {
       (WidgetTester tester) async {
     // Build our widget
     await tester.pumpWidget(
-      MaterialApp(
+      const MaterialApp(
         home: Scaffold(
-          appBar: const AppBarEventpix(),
+          appBar: AppBarEventpix(),
         ),
       ),
     );
@@ -31,13 +31,14 @@ void main() {
   testWidgets('AppBarEventpix uses Theme color for background',
       (WidgetTester tester) async {
     // Create a custom theme
-    var customTheme = ColorScheme.light().copyWith(inversePrimary: Colors.blue);
+    var customTheme =
+        const ColorScheme.light().copyWith(inversePrimary: Colors.blue);
 
     await tester.pumpWidget(
       MaterialApp(
         theme: ThemeData(colorScheme: customTheme),
-        home: Scaffold(
-          appBar: const AppBarEventpix(),
+        home: const Scaffold(
+          appBar: AppBarEventpix(),
         ),
       ),
     );
@@ -52,10 +53,10 @@ void main() {
       MaterialApp(
         initialRoute: '/',
         routes: {
-          '/': (context) => Scaffold(
-                appBar: const AppBarEventpix(),
+          '/': (context) => const Scaffold(
+                appBar: AppBarEventpix(),
               ),
-          '/next': (context) => Scaffold(
+          '/next': (context) => const Scaffold(
                 body: Text('Next Page'),
               ),
         },
@@ -73,9 +74,9 @@ void main() {
   testWidgets('AppBarEventpix displays correct structure',
       (WidgetTester tester) async {
     await tester.pumpWidget(
-      MaterialApp(
+      const MaterialApp(
         home: Scaffold(
-          appBar: const AppBarEventpix(),
+          appBar: AppBarEventpix(),
         ),
       ),
     );
@@ -90,9 +91,9 @@ void main() {
   testWidgets('AppBarEventpix has correct image path',
       (WidgetTester tester) async {
     await tester.pumpWidget(
-      MaterialApp(
+      const MaterialApp(
         home: Scaffold(
-          appBar: const AppBarEventpix(),
+          appBar: AppBarEventpix(),
         ),
       ),
     );
