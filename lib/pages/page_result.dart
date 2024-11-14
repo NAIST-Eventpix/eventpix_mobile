@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:device_calendar/device_calendar.dart';
@@ -41,7 +43,7 @@ class PageResultState extends State<PageResult> {
       });
 
       controllers.add(controllerMap);
-    }    
+    }
   }
 
   @override
@@ -55,8 +57,8 @@ class PageResultState extends State<PageResult> {
     super.dispose();
   }
 
-  Future<Calendar?> selectCalendar(
-      BuildContext context, Map<String?, List<Calendar>> groupedCalendars) async {
+  Future<Calendar?> selectCalendar(BuildContext context,
+      Map<String?, List<Calendar>> groupedCalendars) async {
     return await showDialog<Calendar>(
       context: context,
       builder: (BuildContext context) {
@@ -75,7 +77,8 @@ class PageResultState extends State<PageResult> {
                 for (var calendar in entry.value)
                   InkWell(
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 4, horizontal: 16),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.center,
@@ -127,8 +130,8 @@ class PageResultState extends State<PageResult> {
     if (!context.mounted) return;
 
     final groupedCalendars = calendarsResult.data!
-      .where((calendar) => calendar.isReadOnly == false)
-      .groupListsBy((calendar) => calendar.accountName);
+        .where((calendar) => calendar.isReadOnly == false)
+        .groupListsBy((calendar) => calendar.accountName);
 
     final Calendar? calendar = await selectCalendar(context, groupedCalendars);
 
@@ -266,7 +269,8 @@ class EventCardState extends State<EventCard> {
 
   @override
   Widget build(BuildContext context) {
-    String fStart = DateFormat('yyyy/MM/dd HH:mm').format(DateTime.parse(start));
+    String fStart =
+        DateFormat('yyyy/MM/dd HH:mm').format(DateTime.parse(start));
     String fEnd = DateFormat('yyyy/MM/dd HH:mm').format(DateTime.parse(end));
     String fDate;
     if (isSameDay(DateTime.parse(start), DateTime.parse(end))) {
@@ -382,7 +386,9 @@ class EventCardState extends State<EventCard> {
     );
   }
 
-  Widget _buildDateTimeField(BuildContext context, String label, TextEditingController controller, {bool isDateTime = false}) {
+  Widget _buildDateTimeField(
+      BuildContext context, String label, TextEditingController controller,
+      {bool isDateTime = false}) {
     return TextField(
       controller: controller,
       readOnly: true,
@@ -399,7 +405,7 @@ class EventCardState extends State<EventCard> {
           lastDate: DateTime(2100),
         );
 
-        if (date == null) return;
+        if (date == null || !mounted) return;
 
         // 時刻を選択
         final time = await showTimePicker(
@@ -410,8 +416,10 @@ class EventCardState extends State<EventCard> {
         if (!mounted || time == null) return;
 
         // 日時の選択結果をTextFieldに表示
-        final dateTime = DateTime(date.year, date.month, date.day, time.hour, time.minute);
-        controller.text = "${dateTime.year}-${dateTime.month}-${dateTime.day}T${time.format(context)}";
+        final dateTime =
+            DateTime(date.year, date.month, date.day, time.hour, time.minute);
+        controller.text =
+            "${dateTime.year}-${dateTime.month}-${dateTime.day}T${time.format(context)}";
       },
     );
   }

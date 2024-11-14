@@ -1,0 +1,35 @@
+name: Auto Format on Push (Flutter)
+
+on: push
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          architecture: x64
+        
+      - name: Install Dependencies
+        run: |
+          flutter pub get
+
+      - name: Format
+        run: |
+          dart format .
+
+      - name: Commit and Push Changes Automaticaly
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          if [ -n "$(git status --porcelain)" ]; then
+            git add .
+            git commit -m "Auto Format by GitHub Actions"
+            git push
+          fi
+

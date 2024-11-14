@@ -30,7 +30,7 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
         'assets/icon/logo_name.png',
         height: 40,
       ),
-      onTap:() {
+      onTap: () {
         Navigator.of(context).pushReplacementNamed('/');
       },
     );
