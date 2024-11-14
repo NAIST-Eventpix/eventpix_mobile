@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:device_calendar/device_calendar.dart';
@@ -403,7 +405,7 @@ class EventCardState extends State<EventCard> {
           lastDate: DateTime(2100),
         );
 
-        if (date == null) return;
+        if (date == null || !mounted) return;
 
         // 時刻を選択
         final time = await showTimePicker(
