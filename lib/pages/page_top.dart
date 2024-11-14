@@ -8,6 +8,11 @@ import 'dart:convert';
 import 'page_result.dart';
 import '../utils.dart';
 
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_sharing_intent/model/sharing_file.dart';
+
 class PageTop extends StatefulWidget {
   const PageTop({super.key, required this.title});
   final String title;
@@ -18,6 +23,8 @@ class PageTop extends StatefulWidget {
 
 class StatePageTop extends State<PageTop> {
   String shortcut = '';
+  late StreamSubscription _intentDataStreamSubscription;
+  List<SharedFile>? list;
 
   @override
   void initState() {
@@ -38,7 +45,7 @@ class StatePageTop extends State<PageTop> {
 
   final picker = ImagePicker();
 
-  Future<Json> apiRequest(XFile pickedFile) async {
+  Future<Json> apiRequestFromImage(XFile pickedFile) async {
     logger.fine('API Request : Start');
     showDialog(
       context: context,
@@ -109,7 +116,7 @@ class StatePageTop extends State<PageTop> {
     final pickedFile = await picker.pickImage(source: source);
 
     if (pickedFile != null) {
-      final json = await apiRequest(pickedFile);
+      final json = await apiRequestFromImage(pickedFile);
 
       if (!mounted) return;
 
