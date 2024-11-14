@@ -178,12 +178,26 @@ class PageResultState extends State<PageResult> {
     );
   }
 
+  String formatSavedTime(int seconds) {
+    if (seconds >= 60) {
+      int minutes = seconds ~/ 60;
+      return '$minutes分';
+    } else {
+      return '$seconds秒';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     // 節約できた時間を計算する
-    // 1イベントあたり2分節約できたと計算する
-    // chatgptの処理はわずか5秒程度しかかからないため計算しない
-    int savedTime = widget.json['events'].length * 2;
+    // 予定の内容をすべて（タイトル，時刻，場所，詳細）入力した場合に
+    // 1イベントあたり1.5分節約できたと計算する
+    // タイトルと時刻を入力した場合に
+    // 1イベントあたり30秒節約できたと計算する
+    // chatgptの処理は1イベントあたりわずか4秒程度しかかからないため計算しない
+    int eventNum = widget.json['events'].length;
+    String timeSavedPerFullEvent = formatSavedTime(eventNum * 90);
+    String timeSavedPerBasicEvent = formatSavedTime(eventNum * 30);
 
     return Scaffold(
       appBar: const MyAppBar(),
@@ -201,7 +215,15 @@ class PageResultState extends State<PageResult> {
               ),
               const SizedBox(height: 16),
               Text(
-                '$savedTime分の時間を節約できました',
+                '予定入力を$timeSavedPerFullEvent削減しました（タイトル，時刻，場所，詳細を入力した場合）',
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                '予定入力を$timeSavedPerBasicEvent削減できました（タイトル，時刻を入力した場合）',
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
