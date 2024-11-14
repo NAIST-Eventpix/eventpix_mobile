@@ -168,6 +168,64 @@ class StatePageTop extends State<PageTop> {
     }
   }
 
+  Future<Json> apiRequestFromText(String text) async {
+    logger.fine('API Request : Start');
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => Dialog(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              const CircularProgressIndicator(),
+              const SizedBox(height: 16),
+              const Text(
+                '変換中です...',
+                style: TextStyle(fontSize: 24),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('キャンセル'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    Json json;
+
+    try {
+      final response = await http.post(
+        Uri.https(apiDomain, '/pick_schedule_from_text'),
+        body: jsonEncode({'text': text}),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      json = jsonDecode(utf8.decode(response.bodyBytes));
+    } catch (e) {
+      json = {
+        'error': e.toString(),
+      };
+    }
+
+    logger.fine('API Result  : ${json.toString()}');
+
+    if (!mounted) return {};
+
+    if (json.containsKey('error')) {
+      errorDialog(context, '変換中にエラーが発生しました．\n${json['error']}');
+    }
+
+    Navigator.of(context).pop();
+    return json;
+  }
+
   Future<void> _pickImageFromFlutterSharingIntent() async {
     if (list != null && list!.isNotEmpty) {
       logger.fine('Make XFile  : Start');
@@ -175,20 +233,19 @@ class StatePageTop extends State<PageTop> {
       final sharedFile = list!.first;
       final String path = sharedFile.value!;
       final XFile xFile = XFile(path);
+      final Json json;
 
       // もしsharedFileがtextだったら
       if (sharedFile.type == SharedMediaType.TEXT) {
         logger.fine('Shared File is text');
-        _pickTextFromFlutterSharingIntent();
-        return;
+        json = await apiRequestFromText(sharedFile.value!);
       } else {
         logger.fine('Shared File is not text');
         logger.fine('Shared File Type is ${sharedFile.type}');
+        logger.fine('Shared File : ${xFile.path}');
+        json = await apiRequestFromImage(xFile);
+        logger.fine('API Result  : ${json.toString()}');
       }
-
-      logger.fine('Shared File : ${xFile.path}');
-      final json = await apiRequestFromImage(xFile);
-      logger.fine('API Result  : ${json.toString()}');
 
       if (!mounted) return;
 
@@ -197,12 +254,6 @@ class StatePageTop extends State<PageTop> {
           NoAnimationPageRoute(
             builder: (context) => PageResult(json: json),
           ));
-    }
-  }
-
-  Future<void> _pickTextFromFlutterSharingIntent() async {
-    if (list != null && list!.isNotEmpty) {
-      logger.fine('Shared Text : ${list!.first.value}');
     }
   }
 
