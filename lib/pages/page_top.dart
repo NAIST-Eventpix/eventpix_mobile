@@ -23,12 +23,16 @@ class PageTop extends StatefulWidget {
 class StatePageTop extends State<PageTop> {
   String shortcut = '';
   List<SharedFile>? list;
+  final picker = ImagePicker();
 
   @override
   void initState() {
     super.initState();
     initSharingListener();
+    setupQuickActions();
+  }
 
+  void setupQuickActions() {
     const QuickActions()
       ..initialize((String shortcutType) {
         setState(() => shortcut = shortcutType);
@@ -44,33 +48,26 @@ class StatePageTop extends State<PageTop> {
 
   void initSharingListener() {
     logger.fine("Shared: initSharingListener");
-    // For sharing images coming from outside the app while the app is in the memory
+
     FlutterSharingIntent.instance.getMediaStream().listen(
-        (List<SharedFile> value) {
-      setState(() {
-        list = value;
-      });
-      logger.fine(
-          "Shared: getMediaStream ${value.map((f) => f.value).join(",")}");
-      if (kDebugMode) {
+      (List<SharedFile> value) {
+        setState(() {
+          list = value;
+        });
         logger.fine(
             "Shared: getMediaStream ${value.map((f) => f.value).join(",")}");
-      }
-      _pickImageFromFlutterSharingIntent();
-    }, onError: (err) {
-      if (kDebugMode) {
+        _pickImageFromFlutterSharingIntent();
+      },
+      onError: (err) {
         logger.severe("Shared: getIntentDataStream error: $err");
-      }
-    });
+      },
+    );
 
-    // For sharing images coming from outside the app while the app is closed
     FlutterSharingIntent.instance
         .getInitialSharing()
         .then((List<SharedFile> value) {
-      if (kDebugMode) {
-        print(
-            "Shared: getInitialMedia => ${value.map((f) => f.value).join(",")}");
-      }
+      logger.fine(
+          "Shared: getInitialMedia => ${value.map((f) => f.value).join(",")}");
       setState(() {
         list = value;
       });
@@ -78,93 +75,92 @@ class StatePageTop extends State<PageTop> {
     });
   }
 
-  final picker = ImagePicker();
-
   Future<Json> apiRequestFromImage(XFile pickedFile) async {
     logger.fine('API Request : Start');
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => Dialog(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              const CircularProgressIndicator(),
-              const SizedBox(height: 16),
-              const Text(
-                '変換中です...',
-                style: TextStyle(fontSize: 24),
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: const Text('キャンセル'),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
+    showLoadingDialog();
 
     Json json;
-
     try {
-      http.MultipartRequest request = http.MultipartRequest(
+      final request = http.MultipartRequest(
         'POST',
         Uri.https(apiDomain, '/pick_schedule_from_image'),
       );
-
-      request.files.add(
-        await http.MultipartFile.fromPath(
-          'file',
-          pickedFile.path,
-        ),
-      );
-
-      var streamedResponse = await request.send();
-      final response = await http.Response.fromStream(streamedResponse);
-
+      request.files
+          .add(await http.MultipartFile.fromPath('file', pickedFile.path));
+      final response = await http.Response.fromStream(await request.send());
       json = jsonDecode(utf8.decode(response.bodyBytes));
     } catch (e) {
-      json = {
-        'error': e.toString(),
-      };
+      json = {'error': e.toString()};
     }
 
     logger.fine('API Result  : ${json.toString()}');
-
     if (!mounted) return {};
-
     if (json.containsKey('error')) {
       errorDialog(context, '変換中にエラーが発生しました．\n${json['error']}');
     }
-
     Navigator.of(context).pop();
     return json;
   }
 
   Future<void> _pickImage(ImageSource source) async {
     final pickedFile = await picker.pickImage(source: source);
-
     if (pickedFile != null) {
       final json = await apiRequestFromImage(pickedFile);
-
       if (!mounted) return;
-
       Navigator.push(
-          context,
-          NoAnimationPageRoute(
-            builder: (context) => PageResult(json: json),
-          ));
+        context,
+        NoAnimationPageRoute(builder: (context) => PageResult(json: json)),
+      );
     }
   }
 
   Future<Json> apiRequestFromText(String text) async {
     logger.fine('API Request : Start');
+    showLoadingDialog();
+
+    Json json;
+    try {
+      final response = await http.post(
+        Uri.https(apiDomain, '/pick_schedule_from_text'),
+        body: jsonEncode({'text': text}),
+        headers: {'Content-Type': 'application/json'},
+      );
+      json = jsonDecode(utf8.decode(response.bodyBytes));
+    } catch (e) {
+      json = {'error': e.toString()};
+    }
+
+    logger.fine('API Result  : ${json.toString()}');
+    if (!mounted) return {};
+    if (json.containsKey('error')) {
+      errorDialog(context, '変換中にエラーが発生しました．\n${json['error']}');
+    }
+    Navigator.of(context).pop();
+    return json;
+  }
+
+  Future<void> _pickImageFromFlutterSharingIntent() async {
+    if (list != null && list!.isNotEmpty) {
+      final sharedFile = list!.first;
+      final String path = sharedFile.value!;
+      final XFile xFile = XFile(path);
+      final Json json;
+
+      if (sharedFile.type == SharedMediaType.TEXT) {
+        json = await apiRequestFromText(sharedFile.value!);
+      } else {
+        json = await apiRequestFromImage(xFile);
+      }
+
+      if (!mounted) return;
+      Navigator.push(
+        context,
+        NoAnimationPageRoute(builder: (context) => PageResult(json: json)),
+      );
+    }
+  }
+
+  void showLoadingDialog() {
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -176,10 +172,7 @@ class StatePageTop extends State<PageTop> {
             children: <Widget>[
               const CircularProgressIndicator(),
               const SizedBox(height: 16),
-              const Text(
-                '変換中です...',
-                style: TextStyle(fontSize: 24),
-              ),
+              const Text('変換中です...', style: TextStyle(fontSize: 24)),
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () {
@@ -192,63 +185,6 @@ class StatePageTop extends State<PageTop> {
         ),
       ),
     );
-
-    Json json;
-
-    try {
-      final response = await http.post(
-        Uri.https(apiDomain, '/pick_schedule_from_text'),
-        body: jsonEncode({'text': text}),
-        headers: {'Content-Type': 'application/json'},
-      );
-
-      json = jsonDecode(utf8.decode(response.bodyBytes));
-    } catch (e) {
-      json = {
-        'error': e.toString(),
-      };
-    }
-
-    logger.fine('API Result  : ${json.toString()}');
-
-    if (!mounted) return {};
-
-    if (json.containsKey('error')) {
-      errorDialog(context, '変換中にエラーが発生しました．\n${json['error']}');
-    }
-
-    Navigator.of(context).pop();
-    return json;
-  }
-
-  Future<void> _pickImageFromFlutterSharingIntent() async {
-    if (list != null && list!.isNotEmpty) {
-      logger.fine('Make XFile  : Start');
-      final sharedFile = list!.first;
-      final String path = sharedFile.value!;
-      final XFile xFile = XFile(path);
-      final Json json;
-
-      logger.fine('Shared File : ${xFile.path}');
-
-      if (sharedFile.type == SharedMediaType.TEXT) {
-        logger.fine('Shared File is text');
-        json = await apiRequestFromText(sharedFile.value!);
-      } else {
-        logger.fine('Shared File is not text. Type is ${sharedFile.type}');
-        json = await apiRequestFromImage(xFile);
-      }
-
-      logger.fine('API Result  : ${json.toString()}');
-
-      if (!mounted) return;
-
-      Navigator.push(
-          context,
-          NoAnimationPageRoute(
-            builder: (context) => PageResult(json: json),
-          ));
-    }
   }
 
   @override
