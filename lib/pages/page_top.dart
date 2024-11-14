@@ -162,8 +162,24 @@ class StatePageTop extends State<PageTop> {
     }
   }
 
+  Future<void> _pickImageFromList() async {
+    if (list != null && list!.isNotEmpty) {
+      final json = await apiRequestFromImage(XFile(list!.first.value));
+
+      if (!mounted) return;
+
+      Navigator.push(
+          context,
+          NoAnimationPageRoute(
+            builder: (context) => PageResult(json: json),
+          ));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    _pickImageFromList();
+
     if (shortcut == 'camera') {
       _pickImage(ImageSource.camera);
     }
