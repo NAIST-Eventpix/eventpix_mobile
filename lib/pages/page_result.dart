@@ -180,6 +180,11 @@ class PageResultState extends State<PageResult> {
 
   @override
   Widget build(BuildContext context) {
+    // 節約できた時間を計算する
+    // 1イベントあたり2分節約できたと計算する
+    // chatgptの処理はわずか5秒程度しかかからないため計算しない
+    int savedTime = widget.json['events'].length * 2;
+
     return Scaffold(
       appBar: const MyAppBar(),
       body: Padding(
@@ -191,6 +196,14 @@ class PageResultState extends State<PageResult> {
                 '変換結果',
                 style: TextStyle(
                   fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                '$savedTime分の時間を節約できました',
+                style: const TextStyle(
+                  fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),
               ),
