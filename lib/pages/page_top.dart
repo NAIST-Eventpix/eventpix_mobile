@@ -162,9 +162,14 @@ class StatePageTop extends State<PageTop> {
     }
   }
 
-  Future<void> _pickImageFromList() async {
+  Future<void> _pickImageFromFlutterSharingIntent() async {
     if (list != null && list!.isNotEmpty) {
-      final json = await apiRequestFromImage(XFile(list!.first.value));
+      // XFileを作成
+      final sharedFile = list!.first;
+      final String path = sharedFile.value!;
+      final XFile xFile = XFile(path);
+
+      final json = await apiRequestFromImage(xFile);
 
       if (!mounted) return;
 
@@ -178,7 +183,7 @@ class StatePageTop extends State<PageTop> {
 
   @override
   Widget build(BuildContext context) {
-    _pickImageFromList();
+    _pickImageFromFlutterSharingIntent();
 
     if (shortcut == 'camera') {
       _pickImage(ImageSource.camera);
