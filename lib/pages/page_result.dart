@@ -194,9 +194,9 @@ class PageResultState extends State<PageResult> {
   String formatSavedTime(int seconds) {
     if (seconds >= 60) {
       int minutes = seconds ~/ 60;
-      return '$minutes分';
+      return '$minutes 分';
     } else {
-      return '$seconds秒';
+      return '$seconds 秒';
     }
   }
 
@@ -237,17 +237,54 @@ class PageResultState extends State<PageResult> {
                         content: SingleChildScrollView(
                           child: Column(
                             children: [
+                              const Text(
+                                '予定登録件数'
+                              ),
+                              const SizedBox(height: 4),
                               Text(
-                                '予定入力を$timeSavedPerFullEvent削減しました（タイトル，時刻，場所，詳細を入力した場合）',
-                                style: const TextStyle(
+                                '$eventNum 件',
+                                style: TextStyle(
+                                  color: Theme.of(context).primaryColor,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 24),
+                              const Text(
+                                '予定入力の削減時間',
+                              ),
+                              const Text(
+                                '（全ての情報を入力したとき）',
+                                style: TextStyle(
                                   fontSize: 12,
+                                )
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                timeSavedPerFullEvent,
+                                style: TextStyle(
+                                  color: Theme.of(context).primaryColor,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
                               const SizedBox(height: 16),
-                              Text(
-                                '予定入力を$timeSavedPerBasicEvent削減できました（タイトル，時刻を入力した場合）',
-                                style: const TextStyle(
+                              const Text(
+                                '予定入力の削減時間',
+                              ),
+                              const Text(
+                                '（タイトル，時刻のみ入力したとき）',
+                                style: TextStyle(
                                   fontSize: 12,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                timeSavedPerBasicEvent,
+                                style: TextStyle(
+                                  color: Theme.of(context).primaryColor,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
                             ],
@@ -270,16 +307,18 @@ class PageResultState extends State<PageResult> {
                     style: const TextStyle(color: Colors.black),
                     children: [
                       const TextSpan(
-                        text: "予定入力を",
+                        text: "予定入力の手間を ",
                       ),
                       TextSpan(
                         text: timeSavedPerFullEvent,
-                        style: const TextStyle(
+                        style: TextStyle(
+                          color: Theme.of(context).primaryColor,
+                          fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       const TextSpan(
-                        text: "削減しました"
+                        text: " 削減しました  "
                       ),
                     ]
                   ),
