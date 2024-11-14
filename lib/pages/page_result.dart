@@ -265,8 +265,24 @@ class PageResultState extends State<PageResult> {
                     },
                   );
                 },
-                child: Text(
-                  "予定入力を$timeSavedPerFullEvent削減しました"
+                child: RichText(
+                  text: TextSpan(
+                    style: const TextStyle(color: Colors.black),
+                    children: [
+                      const TextSpan(
+                        text: "予定入力を",
+                      ),
+                      TextSpan(
+                        text: timeSavedPerFullEvent,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const TextSpan(
+                        text: "削減しました"
+                      ),
+                    ]
+                  ),
                 ),
               ),
               const SizedBox(height: 16),
