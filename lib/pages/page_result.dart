@@ -217,16 +217,14 @@ class PageResultState extends State<PageResult> {
               Text(
                 '予定入力を$timeSavedPerFullEvent削減しました（タイトル，時刻，場所，詳細を入力した場合）',
                 style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
                 ),
               ),
               const SizedBox(height: 16),
               Text(
                 '予定入力を$timeSavedPerBasicEvent削減できました（タイトル，時刻を入力した場合）',
                 style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
                 ),
               ),
               const SizedBox(height: 16),
