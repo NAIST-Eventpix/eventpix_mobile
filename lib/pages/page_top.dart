@@ -142,8 +142,7 @@ class StatePageTop extends State<PageTop> {
               child: ElevatedButton(
                 onPressed: () => _pickImage(ImageSource.gallery),
                 style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16)
-                ),
+                    padding: const EdgeInsets.symmetric(vertical: 16)),
                 child: Text(
                   'ライブラリから選択する',
                   style: TextStyle(fontSize: isLandscape(context) ? 24 : 16),
@@ -156,8 +155,7 @@ class StatePageTop extends State<PageTop> {
               child: ElevatedButton(
                 onPressed: () => _pickImage(ImageSource.camera),
                 style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16)
-                ),
+                    padding: const EdgeInsets.symmetric(vertical: 16)),
                 child: Text(
                   'カメラで写真を撮る',
                   style: TextStyle(fontSize: isLandscape(context) ? 24 : 16),
