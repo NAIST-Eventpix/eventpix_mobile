@@ -227,17 +227,46 @@ class PageResultState extends State<PageResult> {
                 ),
               ),
               const SizedBox(height: 16),
-              Text(
-                '予定入力を$timeSavedPerFullEvent削減しました（タイトル，時刻，場所，詳細を入力した場合）',
-                style: const TextStyle(
-                  fontSize: 12,
-                ),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                '予定入力を$timeSavedPerBasicEvent削減できました（タイトル，時刻を入力した場合）',
-                style: const TextStyle(
-                  fontSize: 12,
+              InkWell(
+                onTap: () {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: const Text('変換結果詳細'),
+                        content: SingleChildScrollView(
+                          child: Column(
+                            children: [
+                              Text(
+                                '予定入力を$timeSavedPerFullEvent削減しました（タイトル，時刻，場所，詳細を入力した場合）',
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                '予定入力を$timeSavedPerBasicEvent削減できました（タイトル，時刻を入力した場合）',
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        actions: <Widget>[
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                            child: const Text('閉じる'),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                },
+                child: Text(
+                  "予定入力を$timeSavedPerFullEvent削減しました"
                 ),
               ),
               const SizedBox(height: 16),
