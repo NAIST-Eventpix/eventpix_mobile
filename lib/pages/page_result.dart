@@ -236,9 +236,7 @@ class PageResultState extends State<PageResult> {
                         content: SingleChildScrollView(
                           child: Column(
                             children: [
-                              const Text(
-                                '予定登録件数'
-                              ),
+                              const Text('予定登録件数'),
                               const SizedBox(height: 4),
                               Text(
                                 '$eventNum 件',
@@ -252,12 +250,10 @@ class PageResultState extends State<PageResult> {
                               const Text(
                                 '予定入力の削減時間',
                               ),
-                              const Text(
-                                '（全ての情報を入力したとき）',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                )
-                              ),
+                              const Text('（全ての情報を入力したとき）',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                  )),
                               const SizedBox(height: 4),
                               Text(
                                 timeSavedPerFullEvent,
@@ -303,24 +299,21 @@ class PageResultState extends State<PageResult> {
                 },
                 child: RichText(
                   text: TextSpan(
-                    style: const TextStyle(color: Colors.black),
-                    children: [
-                      const TextSpan(
-                        text: "予定入力の手間を ",
-                      ),
-                      TextSpan(
-                        text: timeSavedPerFullEvent,
-                        style: TextStyle(
-                          color: Theme.of(context).primaryColor,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
+                      style: const TextStyle(color: Colors.black),
+                      children: [
+                        const TextSpan(
+                          text: "予定入力の手間を ",
                         ),
-                      ),
-                      const TextSpan(
-                        text: " 削減しました  "
-                      ),
-                    ]
-                  ),
+                        TextSpan(
+                          text: timeSavedPerFullEvent,
+                          style: TextStyle(
+                            color: Theme.of(context).primaryColor,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const TextSpan(text: " 削減しました  "),
+                      ]),
                 ),
               ),
               const SizedBox(height: 16),
