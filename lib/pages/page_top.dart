@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
@@ -56,7 +55,7 @@ class StatePageTop extends State<PageTop> {
         });
         logger.fine(
             "Shared: getMediaStream ${value.map((f) => f.value).join(",")}");
-        _pickImageFromFlutterSharingIntent();
+        _pickFromFlutterSharingIntent();
       },
       onError: (err) {
         logger.severe("Shared: getIntentDataStream error: $err");
@@ -71,7 +70,7 @@ class StatePageTop extends State<PageTop> {
       setState(() {
         list = value;
       });
-      _pickImageFromFlutterSharingIntent();
+      _pickFromFlutterSharingIntent();
     });
   }
 
@@ -139,7 +138,7 @@ class StatePageTop extends State<PageTop> {
     return json;
   }
 
-  Future<void> _pickImageFromFlutterSharingIntent() async {
+  Future<void> _pickFromFlutterSharingIntent() async {
     if (list != null && list!.isNotEmpty) {
       final sharedFile = list!.first;
       final String path = sharedFile.value!;
