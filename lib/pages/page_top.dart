@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
@@ -12,6 +13,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_sharing_intent/model/sharing_file.dart';
+import 'package:flutter_sharing_intent/flutter_sharing_intent.dart';
 
 class PageTop extends StatefulWidget {
   const PageTop({super.key, required this.title});
@@ -28,6 +30,7 @@ class StatePageTop extends State<PageTop> {
 
   @override
   void initState() {
+    initSharingListener();
     super.initState();
 
     const QuickActions()
@@ -41,6 +44,37 @@ class StatePageTop extends State<PageTop> {
           icon: 'ic_launcher',
         ),
       ]);
+  }
+
+  initSharingListener() {
+    // For sharing images coming from outside the app while the app is in the memory
+    _intentDataStreamSubscription = FlutterSharingIntent.instance
+        .getMediaStream()
+        .listen((List<SharedFile> value) {
+      setState(() {
+        list = value;
+      });
+      if (kDebugMode) {
+        print(" Shared: getMediaStream ${value.map((f) => f.value).join(",")}");
+      }
+    }, onError: (err) {
+      if (kDebugMode) {
+        print("Shared: getIntentDataStream error: $err");
+      }
+    });
+
+    // For sharing images coming from outside the app while the app is closed
+    FlutterSharingIntent.instance
+        .getInitialSharing()
+        .then((List<SharedFile> value) {
+      if (kDebugMode) {
+        print(
+            "Shared: getInitialMedia => ${value.map((f) => f.value).join(",")}");
+      }
+      setState(() {
+        list = value;
+      });
+    });
   }
 
   final picker = ImagePicker();
