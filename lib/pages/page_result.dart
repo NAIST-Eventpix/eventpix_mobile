@@ -45,13 +45,13 @@ class PageResultState extends State<PageResult> {
 
       controllers.add(controllerMap);
     }
-    
+
     _initializeCalendar();
   }
 
   Future<void> _initializeCalendar() async {
     final calendarsResult = await _deviceCalendarPlugin.retrieveCalendars();
-    if(calendarsResult.isSuccess && calendarsResult.data!.isNotEmpty) {
+    if (calendarsResult.isSuccess && calendarsResult.data!.isNotEmpty) {
       setState(() {
         selectedCalendar = calendarsResult.data!.first;
       });
@@ -84,59 +84,58 @@ class PageResultState extends State<PageResult> {
       return;
     }
     final groupedCalendars = calendarsResult.data!
-      .where((calendar) => calendar.isReadOnly == false)
-      .groupListsBy((calendar) => calendar.accountName);
+        .where((calendar) => calendar.isReadOnly == false)
+        .groupListsBy((calendar) => calendar.accountName);
 
     final selected = await showDialog<Calendar>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('カレンダー選択'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              for (var entry in groupedCalendars.entries) ...[
-                Text(
-                  entry.key ?? '無名のアカウント',
-                  style: const TextStyle(fontSize: 20),
-                ),
-                const SizedBox(height: 8),
-                for (var calendar in entry.value)
-                  InkWell(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 4, horizontal: 16),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Container(
-                            width: 16,
-                            height: 16,
-                            decoration: BoxDecoration(
-                              color: Color(calendar.color ?? 0xff0000),
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            calendar.name ?? '無名のカレンダー',
-                            style: const TextStyle(fontSize: 16),
-                          ),
-                        ],
-                      ),
-                    ),
-                    onTap: () {
-                      Navigator.of(context).pop(calendar);
-                    },
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('カレンダー選択'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                for (var entry in groupedCalendars.entries) ...[
+                  Text(
+                    entry.key ?? '無名のアカウント',
+                    style: const TextStyle(fontSize: 20),
                   ),
-              ]
-            ],
-          ),
-        );
-      }
-    );
+                  const SizedBox(height: 8),
+                  for (var calendar in entry.value)
+                    InkWell(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 4, horizontal: 16),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Container(
+                              width: 16,
+                              height: 16,
+                              decoration: BoxDecoration(
+                                color: Color(calendar.color ?? 0xff0000),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              calendar.name ?? '無名のカレンダー',
+                              style: const TextStyle(fontSize: 16),
+                            ),
+                          ],
+                        ),
+                      ),
+                      onTap: () {
+                        Navigator.of(context).pop(calendar);
+                      },
+                    ),
+                ]
+              ],
+            ),
+          );
+        });
 
     if (selected != null) {
       setState(() {
@@ -325,7 +324,7 @@ class PageResultState extends State<PageResult> {
                 ),
               ),
               const SizedBox(height: 16),
-               ElevatedButton(
+              ElevatedButton(
                 onPressed: () => selectCalendar(context),
                 child: const Text('カレンダーを選択'),
               ),
