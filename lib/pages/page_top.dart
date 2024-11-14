@@ -30,8 +30,8 @@ class StatePageTop extends State<PageTop> {
 
   @override
   void initState() {
-    initSharingListener();
     super.initState();
+    initSharingListener();
 
     const QuickActions()
       ..initialize((String shortcutType) {
@@ -47,6 +47,7 @@ class StatePageTop extends State<PageTop> {
   }
 
   initSharingListener() {
+    logger.fine("Shared: initSharingListener");
     // For sharing images coming from outside the app while the app is in the memory
     _intentDataStreamSubscription = FlutterSharingIntent.instance
         .getMediaStream()
@@ -54,12 +55,16 @@ class StatePageTop extends State<PageTop> {
       setState(() {
         list = value;
       });
+      logger.fine(
+          "Shared: getMediaStream ${value.map((f) => f.value).join(",")}");
       if (kDebugMode) {
-        print(" Shared: getMediaStream ${value.map((f) => f.value).join(",")}");
+        logger.fine(
+            " Shared: getMediaStream ${value.map((f) => f.value).join(",")}");
       }
+      _pickImageFromFlutterSharingIntent();
     }, onError: (err) {
       if (kDebugMode) {
-        print("Shared: getIntentDataStream error: $err");
+        logger.severe("Shared: getIntentDataStream error: $err");
       }
     });
 
@@ -74,6 +79,7 @@ class StatePageTop extends State<PageTop> {
       setState(() {
         list = value;
       });
+      _pickImageFromFlutterSharingIntent();
     });
   }
 
@@ -164,12 +170,25 @@ class StatePageTop extends State<PageTop> {
 
   Future<void> _pickImageFromFlutterSharingIntent() async {
     if (list != null && list!.isNotEmpty) {
+      logger.fine('Make XFile  : Start');
       // XFileを作成
       final sharedFile = list!.first;
       final String path = sharedFile.value!;
       final XFile xFile = XFile(path);
 
+      // もしsharedFileがtextだったら
+      if (sharedFile.type == SharedMediaType.TEXT) {
+        logger.fine('Shared File is text');
+        _pickTextFromFlutterSharingIntent();
+        return;
+      } else {
+        logger.fine('Shared File is not text');
+        logger.fine('Shared File Type is ${sharedFile.type}');
+      }
+
+      logger.fine('Shared File : ${xFile.path}');
       final json = await apiRequestFromImage(xFile);
+      logger.fine('API Result  : ${json.toString()}');
 
       if (!mounted) return;
 
@@ -181,10 +200,14 @@ class StatePageTop extends State<PageTop> {
     }
   }
 
+  Future<void> _pickTextFromFlutterSharingIntent() async {
+    if (list != null && list!.isNotEmpty) {
+      logger.fine('Shared Text : ${list!.first.value}');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    _pickImageFromFlutterSharingIntent();
-
     if (shortcut == 'camera') {
       _pickImage(ImageSource.camera);
     }
