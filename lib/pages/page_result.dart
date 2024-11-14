@@ -21,6 +21,7 @@ class PageResult extends StatefulWidget {
 
 class PageResultState extends State<PageResult> {
   List<Map<String, TextEditingController>> controllers = [];
+  Calendar? selectedCalendar;
 
   @override
   void initState() {
@@ -44,6 +45,17 @@ class PageResultState extends State<PageResult> {
 
       controllers.add(controllerMap);
     }
+    
+    _initializeCalendar();
+  }
+
+  Future<void> _initializeCalendar() async {
+    final calendarsResult = await _deviceCalendarPlugin.retrieveCalendars();
+    if(calendarsResult.isSuccess && calendarsResult.data!.isNotEmpty) {
+      setState(() {
+        selectedCalendar = calendarsResult.data!.first;
+      });
+    }
   }
 
   @override
@@ -57,9 +69,25 @@ class PageResultState extends State<PageResult> {
     super.dispose();
   }
 
-  Future<Calendar?> selectCalendar(BuildContext context,
-      Map<String?, List<Calendar>> groupedCalendars) async {
-    return await showDialog<Calendar>(
+  Future<void> selectCalendar(BuildContext context) async {
+    var permissionsGranted = await _deviceCalendarPlugin.hasPermissions();
+    if (permissionsGranted.isSuccess && !permissionsGranted.data!) {
+      permissionsGranted = await _deviceCalendarPlugin.requestPermissions();
+      if (!permissionsGranted.isSuccess || !permissionsGranted.data!) {
+        logger.severe("カレンダーへのアクセスが拒否されました．");
+        return;
+      }
+    }
+    var calendarsResult = await _deviceCalendarPlugin.retrieveCalendars();
+    if (!calendarsResult.isSuccess || calendarsResult.data == null) {
+      logger.severe("カレンダーが見つかりませんでした．");
+      return;
+    }
+    final groupedCalendars = calendarsResult.data!
+      .where((calendar) => calendar.isReadOnly == false)
+      .groupListsBy((calendar) => calendar.accountName);
+
+    final selected = await showDialog<Calendar>(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
@@ -107,33 +135,18 @@ class PageResultState extends State<PageResult> {
             ],
           ),
         );
-      },
+      }
     );
+
+    if (selected != null) {
+      setState(() {
+        selectedCalendar = selected;
+      });
+    }
   }
 
   void registCalendar(BuildContext context) async {
-    var permissionsGranted = await _deviceCalendarPlugin.hasPermissions();
-    if (permissionsGranted.isSuccess && !permissionsGranted.data!) {
-      permissionsGranted = await _deviceCalendarPlugin.requestPermissions();
-      if (!permissionsGranted.isSuccess || !permissionsGranted.data!) {
-        logger.severe("カレンダーへのアクセスが拒否されました．");
-        return;
-      }
-    }
-
-    var calendarsResult = await _deviceCalendarPlugin.retrieveCalendars();
-    if (!calendarsResult.isSuccess || calendarsResult.data == null) {
-      logger.severe("カレンダーが見つかりませんでした．");
-      return;
-    }
-
-    if (!context.mounted) return;
-
-    final groupedCalendars = calendarsResult.data!
-        .where((calendar) => calendar.isReadOnly == false)
-        .groupListsBy((calendar) => calendar.accountName);
-
-    final Calendar? calendar = await selectCalendar(context, groupedCalendars);
+    final Calendar? calendar = selectedCalendar;
 
     if (calendar == null) {
       logger.severe("カレンダーが選択されませんでした．");
@@ -226,6 +239,30 @@ class PageResultState extends State<PageResult> {
                 style: const TextStyle(
                   fontSize: 12,
                 ),
+              ),
+              const SizedBox(height: 16),
+               ElevatedButton(
+                onPressed: () => selectCalendar(context),
+                child: const Text('カレンダーを選択'),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Container(
+                    width: 16,
+                    height: 16,
+                    decoration: BoxDecoration(
+                      color: Color(selectedCalendar!.color ?? 0xff0000),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    selectedCalendar!.name ?? '無名のカレンダー',
+                    style: const TextStyle(fontSize: 16),
+                  ),
+                ],
               ),
               const SizedBox(height: 16),
               ListView.builder(
