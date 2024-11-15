@@ -1,8 +1,11 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
+import 'package:logger/logger.dart';
 import 'package:googleapis/calendar/v3.dart' as calendar;
 import 'package:googleapis_auth/auth_io.dart';
+
+final logger = Logger();
 
 const _scopes = [calendar.CalendarApi.calendarScope];
 const _tokenFile = 'token.json';
@@ -37,8 +40,8 @@ class GoogleCalendarApi {
     // トークンが存在しないか期限切れの場合、新しいトークンを取得
     if (credentials == null || credentials!.accessToken.hasExpired) {
       var client = await clientViaUserConsent(clientId, _scopes, (url) {
-        print('Please go to the following URL:');
-        print('  => $url');
+        logger.i('Please go to the following URL:');
+        logger.i('  => $url');
       });
 
       credentials = client.credentials;
