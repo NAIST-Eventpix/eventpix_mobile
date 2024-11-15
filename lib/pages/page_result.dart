@@ -460,27 +460,15 @@ class EventCardState extends State<EventCard> {
 
     startDateController = TextEditingController();
     startDateController.text = start.split('T')[0];
-    startDateController.addListener(() {
-      start = '${startDateController.text}T${startTimeController.text}';
-    });
 
     startTimeController = TextEditingController();
     startTimeController.text = start.split('T')[1];
-    startTimeController.addListener(() {
-      start = '${startDateController.text}T${startTimeController.text}';
-    });
 
     endDateController = TextEditingController();
     endDateController.text = end.split('T')[0];
-    endDateController.addListener(() {
-      end = '${endDateController.text}T${endTimeController.text}';
-    });
 
     endTimeController = TextEditingController();
     endTimeController.text = end.split('T')[1];
-    endTimeController.addListener(() {
-      end = '${endDateController.text}T${endTimeController.text}';
-    });
   }
 
   @override
@@ -624,8 +612,10 @@ class EventCardState extends State<EventCard> {
                   summary = widget.summaryController.text;
                   description = widget.descriptionController.text;
                   location = widget.locationController.text;
-                  start = widget.startController.text;
-                  end = widget.endController.text;
+                  start = '${startDateController.text}T${startTimeController.text}';
+                  end = '${endDateController.text}T${endTimeController.text}';
+                  widget.startController.text = start;
+                  widget.endController.text = end;
                 });
                 Navigator.of(context).pop();
               },
