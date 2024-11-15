@@ -441,25 +441,28 @@ class EventCardState extends State<EventCard> {
           subtitle: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                description,
-                style: TextStyle(
-                  fontSize: isLandscape(context) ? 16 : 14,
+              if (description.isNotEmpty)
+                Text(
+                  description,
+                  style: TextStyle(
+                    fontSize: isLandscape(context) ? 16 : 14,
+                  ),
                 ),
-              ),
-              Text(
-                fDate,
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: isLandscape(context) ? 18 : 14,
+              if (fDate.isNotEmpty)
+                Text(
+                  fDate,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: isLandscape(context) ? 18 : 14,
+                  ),
                 ),
-              ),
-              Text(
-                '@ $location',
-                style: TextStyle(
-                  fontSize: isLandscape(context) ? 16 : 14,
+              if (location.isNotEmpty)
+                Text(
+                  '@ $location',
+                  style: TextStyle(
+                    fontSize: isLandscape(context) ? 16 : 14,
+                  ),
                 ),
-              ),
             ],
           ),
         ),
