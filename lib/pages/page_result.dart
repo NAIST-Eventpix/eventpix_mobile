@@ -225,7 +225,7 @@ class PageResultState extends State<PageResult> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 8),
               InkWell(
                 onTap: () {
                   showDialog(
@@ -299,48 +299,49 @@ class PageResultState extends State<PageResult> {
                 },
                 child: RichText(
                   text: TextSpan(
-                      style: const TextStyle(color: Colors.black),
-                      children: [
-                        const TextSpan(
-                          text: "予定入力の手間を ",
+                    style: const TextStyle(color: Colors.black),
+                    children: [
+                      const TextSpan(
+                        text: "予定入力の手間を ",
+                      ),
+                      TextSpan(
+                        text: timeSavedPerFullEvent,
+                        style: TextStyle(
+                          color: Theme.of(context).primaryColor,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
                         ),
-                        TextSpan(
-                          text: timeSavedPerFullEvent,
-                          style: TextStyle(
-                            color: Theme.of(context).primaryColor,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const TextSpan(text: " 削減しました  "),
-                      ]),
+                      ),
+                      const TextSpan(text: " 削減しました  "),
+                    ]),
                 ),
               ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () => selectCalendar(context),
-                child: const Text('カレンダーを選択'),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Container(
-                    width: 16,
-                    height: 16,
-                    decoration: BoxDecoration(
-                      color: Color(selectedCalendar!.color ?? 0xff0000),
-                      borderRadius: BorderRadius.circular(4),
+              const SizedBox(height: 40),
+              InkWell(
+                onTap: () => selectCalendar(context),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const Text("カレンダー："),
+                    const SizedBox(width: 16),
+                    Container(
+                      width: 16,
+                      height: 16,
+                      decoration: BoxDecoration(
+                        color: Color(selectedCalendar!.color ?? 0xff0000),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    selectedCalendar!.name ?? '無名のカレンダー',
-                    style: const TextStyle(fontSize: 16),
-                  ),
-                ],
+                    const SizedBox(width: 8),
+                    Text(
+                      selectedCalendar!.name ?? '無名のカレンダー',
+                      style: const TextStyle(fontSize: 16),
+                    ),
+                  ],
+                ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 24),
               ListView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
