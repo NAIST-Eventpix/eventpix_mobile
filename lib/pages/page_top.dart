@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:quick_actions/quick_actions.dart';
+import 'package:flutter_sharing_intent/model/sharing_file.dart';
+import 'package:flutter_sharing_intent/flutter_sharing_intent.dart';
 
 import 'dart:convert';
+import 'dart:async';
 
 import 'page_result.dart';
 import '../utils.dart';
@@ -18,11 +21,17 @@ class PageTop extends StatefulWidget {
 
 class StatePageTop extends State<PageTop> {
   String shortcut = '';
+  List<SharedFile>? list;
+  final picker = ImagePicker();
 
   @override
   void initState() {
     super.initState();
+    initSharingListener();
+    setupQuickActions();
+  }
 
+  void setupQuickActions() {
     const QuickActions()
       ..initialize((String shortcutType) {
         setState(() => shortcut = shortcutType);
@@ -36,10 +45,121 @@ class StatePageTop extends State<PageTop> {
       ]);
   }
 
-  final picker = ImagePicker();
+  void initSharingListener() {
+    logger.fine("Shared: initSharingListener");
 
-  Future<Json> apiRequest(XFile pickedFile) async {
+    FlutterSharingIntent.instance.getMediaStream().listen(
+      (List<SharedFile> value) {
+        setState(() {
+          list = value;
+        });
+        logger.fine(
+            "Shared: getMediaStream ${value.map((f) => f.value).join(",")}");
+        _pickFromFlutterSharingIntent();
+      },
+      onError: (err) {
+        logger.severe("Shared: getIntentDataStream error: $err");
+      },
+    );
+
+    FlutterSharingIntent.instance
+        .getInitialSharing()
+        .then((List<SharedFile> value) {
+      logger.fine(
+          "Shared: getInitialMedia => ${value.map((f) => f.value).join(",")}");
+      setState(() {
+        list = value;
+      });
+      _pickFromFlutterSharingIntent();
+    });
+  }
+
+  Future<Json> apiRequestFromImage(XFile pickedFile) async {
     logger.fine('API Request : Start');
+    showLoadingDialog();
+
+    Json json;
+    try {
+      final request = http.MultipartRequest(
+        'POST',
+        Uri.https(apiDomain, '/pick_schedule_from_image'),
+      );
+      request.files
+          .add(await http.MultipartFile.fromPath('file', pickedFile.path));
+      final response = await http.Response.fromStream(await request.send());
+      json = jsonDecode(utf8.decode(response.bodyBytes));
+    } catch (e) {
+      json = {'error': e.toString()};
+    }
+
+    logger.fine('API Result  : ${json.toString()}');
+    if (!mounted) return {};
+    if (json.containsKey('error')) {
+      errorDialog(context, '変換中にエラーが発生しました．\n${json['error']}');
+    }
+    Navigator.of(context).pop();
+    return json;
+  }
+
+  Future<void> _pickImage(ImageSource source) async {
+    final pickedFile = await picker.pickImage(source: source);
+    if (pickedFile != null) {
+      final json = await apiRequestFromImage(pickedFile);
+      if (!mounted) return;
+      Navigator.push(
+        context,
+        NoAnimationPageRoute(builder: (context) => PageResult(json: json)),
+      );
+    }
+  }
+
+  Future<Json> apiRequestFromText(String text) async {
+    logger.fine('API Request : Start');
+    showLoadingDialog();
+
+    Json json;
+    try {
+      final response = await http.post(
+        Uri.https(apiDomain, '/pick_schedule_from_text'),
+        body: jsonEncode({'text': text}),
+        headers: {'Content-Type': 'application/json'},
+      );
+      json = jsonDecode(utf8.decode(response.bodyBytes));
+    } catch (e) {
+      json = {'error': e.toString()};
+    }
+
+    logger.fine('API Result  : ${json.toString()}');
+    if (!mounted) return {};
+    if (json.containsKey('error')) {
+      errorDialog(context, '変換中にエラーが発生しました．\n${json['error']}');
+    }
+    Navigator.of(context).pop();
+    return json;
+  }
+
+  Future<void> _pickFromFlutterSharingIntent() async {
+    if (list != null && list!.isNotEmpty) {
+      final sharedFile = list!.first;
+      final String path = sharedFile.value!;
+      final XFile xFile = XFile(path);
+      final Json json;
+
+      if (sharedFile.type == SharedMediaType.TEXT) {
+        json = await apiRequestFromText(sharedFile.value!);
+      } else {
+        json = await apiRequestFromImage(xFile);
+      }
+
+      if (!mounted) return;
+      Navigator.push(
+        context,
+        NoAnimationPageRoute(builder: (context) => PageResult(json: json)),
+      );
+    }
+  }
+
+  void showLoadingDialog() {
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -51,10 +171,7 @@ class StatePageTop extends State<PageTop> {
             children: <Widget>[
               const CircularProgressIndicator(),
               const SizedBox(height: 16),
-              const Text(
-                '変換中です...',
-                style: TextStyle(fontSize: 24),
-              ),
+              const Text('変換中です...', style: TextStyle(fontSize: 24)),
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () {
@@ -67,58 +184,6 @@ class StatePageTop extends State<PageTop> {
         ),
       ),
     );
-
-    Json json;
-
-    try {
-      http.MultipartRequest request = http.MultipartRequest(
-        'POST',
-        Uri.https(apiDomain, '/pick_schedule_from_image'),
-      );
-
-      request.files.add(
-        await http.MultipartFile.fromPath(
-          'file',
-          pickedFile.path,
-        ),
-      );
-
-      var streamedResponse = await request.send();
-      final response = await http.Response.fromStream(streamedResponse);
-
-      json = jsonDecode(utf8.decode(response.bodyBytes));
-    } catch (e) {
-      json = {
-        'error': e.toString(),
-      };
-    }
-
-    logger.fine('API Result  : ${json.toString()}');
-
-    if (!mounted) return {};
-
-    if (json.containsKey('error')) {
-      errorDialog(context, '変換中にエラーが発生しました．\n${json['error']}');
-    }
-
-    Navigator.of(context).pop();
-    return json;
-  }
-
-  Future<void> _pickImage(ImageSource source) async {
-    final pickedFile = await picker.pickImage(source: source);
-
-    if (pickedFile != null) {
-      final json = await apiRequest(pickedFile);
-
-      if (!mounted) return;
-
-      Navigator.push(
-          context,
-          NoAnimationPageRoute(
-            builder: (context) => PageResult(json: json),
-          ));
-    }
   }
 
   @override
