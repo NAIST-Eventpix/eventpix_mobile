@@ -37,7 +37,6 @@ class PageResultState extends State<PageResult> {
         'dtend': TextEditingController(text: event['dtend']),
       };
 
-
       // 各コントローラーにリスナーを追加して、jsonデータを更新
       controllerMap.forEach((key, controller) {
         controller.addListener(() {
@@ -417,15 +416,14 @@ class EventCard extends StatefulWidget {
   final TextEditingController endController;
   final ValueNotifier<bool> deleteController;
 
-  const EventCard({
-    super.key,
-    required this.summaryController,
-    required this.descriptionController,
-    required this.locationController,
-    required this.startController,
-    required this.endController,
-    required this.deleteController
-  });
+  const EventCard(
+      {super.key,
+      required this.summaryController,
+      required this.descriptionController,
+      required this.locationController,
+      required this.startController,
+      required this.endController,
+      required this.deleteController});
 
   @override
   EventCardState createState() => EventCardState();
@@ -570,8 +568,11 @@ class EventCardState extends State<EventCard> {
                 });
                 Navigator.of(context).pop();
               },
-              child: const Text('削除',
-              style: TextStyle(color: Colors.red,),
+              child: const Text(
+                '削除',
+                style: TextStyle(
+                  color: Colors.red,
+                ),
               ),
             ),
             TextButton(
