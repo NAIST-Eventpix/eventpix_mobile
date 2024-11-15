@@ -21,6 +21,8 @@ class PageResult extends StatefulWidget {
 
 class PageResultState extends State<PageResult> {
   List<Map<String, TextEditingController>> controllers = [];
+  List<ValueNotifier<bool>> deleteControllers = [];
+  Calendar? selectedCalendar;
 
   @override
   void initState() {
@@ -43,6 +45,32 @@ class PageResultState extends State<PageResult> {
       });
 
       controllers.add(controllerMap);
+
+      final deleteController = ValueNotifier<bool>(false);
+      deleteControllers.add(deleteController);
+    }
+
+    _initializeCalendar();
+  }
+
+  Future<void> _initializeCalendar() async {
+    var permissionsGranted = await _deviceCalendarPlugin.hasPermissions();
+    if (permissionsGranted.isSuccess && !permissionsGranted.data!) {
+      permissionsGranted = await _deviceCalendarPlugin.requestPermissions();
+      if (!permissionsGranted.isSuccess || !permissionsGranted.data!) {
+        logger.severe("カレンダーへのアクセスが拒否されました．");
+        return;
+      }
+    }
+    var calendarsResult = await _deviceCalendarPlugin.retrieveCalendars();
+    if (!calendarsResult.isSuccess || calendarsResult.data == null) {
+      logger.severe("カレンダーが見つかりませんでした．");
+      return;
+    }
+    if (calendarsResult.isSuccess && calendarsResult.data!.isNotEmpty) {
+      setState(() {
+        selectedCalendar = calendarsResult.data!.first;
+      });
     }
   }
 
@@ -54,64 +82,13 @@ class PageResultState extends State<PageResult> {
         controller.dispose();
       }
     }
+    for (var controller in deleteControllers) {
+      controller.dispose();
+    }
     super.dispose();
   }
 
-  Future<Calendar?> selectCalendar(BuildContext context,
-      Map<String?, List<Calendar>> groupedCalendars) async {
-    return await showDialog<Calendar>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('カレンダー選択'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              for (var entry in groupedCalendars.entries) ...[
-                Text(
-                  entry.key ?? '無名のアカウント',
-                  style: const TextStyle(fontSize: 20),
-                ),
-                const SizedBox(height: 8),
-                for (var calendar in entry.value)
-                  InkWell(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 4, horizontal: 16),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Container(
-                            width: 16,
-                            height: 16,
-                            decoration: BoxDecoration(
-                              color: Color(calendar.color ?? 0xff0000),
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            calendar.name ?? '無名のカレンダー',
-                            style: const TextStyle(fontSize: 16),
-                          ),
-                        ],
-                      ),
-                    ),
-                    onTap: () {
-                      Navigator.of(context).pop(calendar);
-                    },
-                  ),
-              ]
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  void registCalendar(BuildContext context) async {
+  Future<void> selectCalendar(BuildContext context) async {
     var permissionsGranted = await _deviceCalendarPlugin.hasPermissions();
     if (permissionsGranted.isSuccess && !permissionsGranted.data!) {
       permissionsGranted = await _deviceCalendarPlugin.requestPermissions();
@@ -120,27 +97,86 @@ class PageResultState extends State<PageResult> {
         return;
       }
     }
-
     var calendarsResult = await _deviceCalendarPlugin.retrieveCalendars();
     if (!calendarsResult.isSuccess || calendarsResult.data == null) {
       logger.severe("カレンダーが見つかりませんでした．");
       return;
     }
-
-    if (!context.mounted) return;
-
     final groupedCalendars = calendarsResult.data!
         .where((calendar) => calendar.isReadOnly == false)
         .groupListsBy((calendar) => calendar.accountName);
 
-    final Calendar? calendar = await selectCalendar(context, groupedCalendars);
+    final selected = await showDialog<Calendar>(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('カレンダー選択'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                for (var entry in groupedCalendars.entries) ...[
+                  Text(
+                    entry.key ?? '無名のアカウント',
+                    style: const TextStyle(fontSize: 20),
+                  ),
+                  const SizedBox(height: 8),
+                  for (var calendar in entry.value)
+                    InkWell(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 4, horizontal: 16),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Container(
+                              width: 16,
+                              height: 16,
+                              decoration: BoxDecoration(
+                                color: Color(calendar.color ?? 0xff0000),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              calendar.name ?? '無名のカレンダー',
+                              style: const TextStyle(fontSize: 16),
+                            ),
+                          ],
+                        ),
+                      ),
+                      onTap: () {
+                        Navigator.of(context).pop(calendar);
+                      },
+                    ),
+                ]
+              ],
+            ),
+          );
+        });
+
+    if (selected != null) {
+      setState(() {
+        selectedCalendar = selected;
+      });
+    }
+  }
+
+  void registCalendar(BuildContext context) async {
+    final Calendar? calendar = selectedCalendar;
 
     if (calendar == null) {
       logger.severe("カレンダーが選択されませんでした．");
       return;
     }
 
-    for (var e in widget.json['events']) {
+    for (var ind = 0; ind < controllers.length; ind++) {
+      if (deleteControllers[ind].value) {
+        logger.fine("登録スキップ");
+        continue;
+      }
+      final e = widget.json['events'][ind];
       final event = Event(calendar.id);
       event.title = e['summary'];
       event.start = tz.TZDateTime.from(DateTime.parse(e['dtstart']), tz.local);
@@ -181,9 +217,9 @@ class PageResultState extends State<PageResult> {
   String formatSavedTime(int seconds) {
     if (seconds >= 60) {
       int minutes = seconds ~/ 60;
-      return '$minutes分';
+      return '$minutes 分';
     } else {
-      return '$seconds秒';
+      return '$seconds 秒';
     }
   }
 
@@ -213,35 +249,148 @@ class PageResultState extends State<PageResult> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 16),
-              Text(
-                '予定入力を$timeSavedPerFullEvent削減しました（タイトル，時刻，場所，詳細を入力した場合）',
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+              const SizedBox(height: 8),
+              InkWell(
+                onTap: () {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: const Text('変換結果詳細'),
+                        content: SingleChildScrollView(
+                          child: Column(
+                            children: [
+                              const Text('予定登録件数'),
+                              const SizedBox(height: 4),
+                              Text(
+                                '$eventNum 件',
+                                style: TextStyle(
+                                  color: Theme.of(context).primaryColor,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 24),
+                              const Text(
+                                '予定入力の削減時間',
+                              ),
+                              const Text('（全ての情報を入力したとき）',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                  )),
+                              const SizedBox(height: 4),
+                              Text(
+                                timeSavedPerFullEvent,
+                                style: TextStyle(
+                                  color: Theme.of(context).primaryColor,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              const Text(
+                                '予定入力の削減時間',
+                              ),
+                              const Text(
+                                '（タイトル，時刻のみ入力したとき）',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                timeSavedPerBasicEvent,
+                                style: TextStyle(
+                                  color: Theme.of(context).primaryColor,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        actions: <Widget>[
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                            child: const Text('閉じる'),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                },
+                child: RichText(
+                  text: TextSpan(
+                      style: const TextStyle(color: Colors.black),
+                      children: [
+                        const TextSpan(
+                          text: "予定入力の手間を ",
+                        ),
+                        TextSpan(
+                          text: timeSavedPerFullEvent,
+                          style: TextStyle(
+                            color: Theme.of(context).primaryColor,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const TextSpan(text: " 削減しました  "),
+                      ]),
                 ),
               ),
-              const SizedBox(height: 16),
-              Text(
-                '予定入力を$timeSavedPerBasicEvent削減できました（タイトル，時刻を入力した場合）',
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+              const SizedBox(height: 40),
+              InkWell(
+                onTap: () => selectCalendar(context),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const Text("カレンダー："),
+                    const SizedBox(width: 16),
+                    if (selectedCalendar == null)
+                      const Text(
+                        '未選択',
+                        style: TextStyle(
+                          fontSize: 16,
+                        ),
+                      ),
+                    if (selectedCalendar != null) ...[
+                      Container(
+                        width: 16,
+                        height: 16,
+                        decoration: BoxDecoration(
+                          color: Color(selectedCalendar!.color ?? 0xff0000),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        selectedCalendar!.name ?? '無名のカレンダー',
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                    ],
+                  ],
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 24),
               ListView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: controllers.length,
                 itemBuilder: (context, index) {
                   final eventControllers = controllers[index];
+                  if (deleteControllers[index].value) {
+                    return const SizedBox.shrink();
+                  }
                   return EventCard(
                     summaryController: eventControllers['summary']!,
                     descriptionController: eventControllers['description']!,
                     locationController: eventControllers['location']!,
                     startController: eventControllers['dtstart']!,
                     endController: eventControllers['dtend']!,
+                    deleteController: deleteControllers[index],
                   );
                 },
               )
@@ -265,15 +414,16 @@ class EventCard extends StatefulWidget {
   final TextEditingController locationController;
   final TextEditingController startController;
   final TextEditingController endController;
+  final ValueNotifier<bool> deleteController;
 
-  const EventCard({
-    super.key,
-    required this.summaryController,
-    required this.descriptionController,
-    required this.locationController,
-    required this.startController,
-    required this.endController,
-  });
+  const EventCard(
+      {super.key,
+      required this.summaryController,
+      required this.descriptionController,
+      required this.locationController,
+      required this.startController,
+      required this.endController,
+      required this.deleteController});
 
   @override
   EventCardState createState() => EventCardState();
@@ -286,6 +436,7 @@ class EventCardState extends State<EventCard> {
   late String location;
   late String start;
   late String end;
+  late bool isDeleted;
 
   bool isSameDay(DateTime a, DateTime b) {
     return a.year == b.year && a.month == b.month && a.day == b.day;
@@ -300,6 +451,7 @@ class EventCardState extends State<EventCard> {
     location = widget.locationController.text;
     start = widget.startController.text;
     end = widget.endController.text;
+    isDeleted = widget.deleteController.value;
   }
 
   @override
@@ -312,6 +464,10 @@ class EventCardState extends State<EventCard> {
       fDate = '$fStart ~ ${DateFormat('HH:mm').format(DateTime.parse(end))}';
     } else {
       fDate = '$fStart ~ $fEnd';
+    }
+
+    if (isDeleted) {
+      return const SizedBox.shrink();
     }
     return GestureDetector(
       onTap: () {
@@ -329,25 +485,28 @@ class EventCardState extends State<EventCard> {
           subtitle: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                description,
-                style: TextStyle(
-                  fontSize: isLandscape(context) ? 16 : 14,
+              if (description.isNotEmpty)
+                Text(
+                  description,
+                  style: TextStyle(
+                    fontSize: isLandscape(context) ? 16 : 14,
+                  ),
                 ),
-              ),
-              Text(
-                fDate,
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: isLandscape(context) ? 18 : 14,
+              if (fDate.isNotEmpty)
+                Text(
+                  fDate,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: isLandscape(context) ? 18 : 14,
+                  ),
                 ),
-              ),
-              Text(
-                '@ $location',
-                style: TextStyle(
-                  fontSize: isLandscape(context) ? 16 : 14,
+              if (location.isNotEmpty)
+                Text(
+                  '@ $location',
+                  style: TextStyle(
+                    fontSize: isLandscape(context) ? 16 : 14,
+                  ),
                 ),
-              ),
             ],
           ),
         ),
@@ -400,6 +559,21 @@ class EventCardState extends State<EventCard> {
                 Navigator.of(context).pop();
               },
               child: const Text("キャンセル"),
+            ),
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  widget.deleteController.value = true;
+                  isDeleted = true;
+                });
+                Navigator.of(context).pop();
+              },
+              child: const Text(
+                '削除',
+                style: TextStyle(
+                  color: Colors.red,
+                ),
+              ),
             ),
             TextButton(
               onPressed: () {
