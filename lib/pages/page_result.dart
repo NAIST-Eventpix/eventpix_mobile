@@ -654,7 +654,7 @@ class EventCardState extends State<EventCard> {
       onTap: () async {
         final date = await showDatePicker(
           context: context,
-          initialDate: DateTime.now(),
+          initialDate: DateTime.parse(controller.text),
           firstDate: DateTime(2000),
           lastDate: DateTime(2100),
         );
@@ -680,9 +680,13 @@ class EventCardState extends State<EventCard> {
         suffixIcon: const Icon(Icons.access_time),
       ),
       onTap: () async {
+        List<String> parts = controller.text.split(':');
+        final int hour = int.parse(parts[0]);
+        final int minute = int.parse(parts[1]);
+
         final time = await showTimePicker(
           context: context,
-          initialTime: TimeOfDay.fromDateTime(DateTime.now()),
+          initialTime: TimeOfDay(hour: hour, minute: minute),
         );
 
         if (time == null || !mounted) return;
