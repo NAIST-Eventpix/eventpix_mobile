@@ -571,8 +571,7 @@ class EventCardState extends State<EventCard> {
                 Row(
                   children: [
                     Expanded(
-                      child:
-                          _buildDateField(context, "終了日", endDateController),
+                      child: _buildDateField(context, "終了日", endDateController),
                     ),
                     Expanded(
                       child:
@@ -612,7 +611,8 @@ class EventCardState extends State<EventCard> {
                   summary = widget.summaryController.text;
                   description = widget.descriptionController.text;
                   location = widget.locationController.text;
-                  start = '${startDateController.text}T${startTimeController.text}';
+                  start =
+                      '${startDateController.text}T${startTimeController.text}';
                   end = '${endDateController.text}T${endTimeController.text}';
                   widget.startController.text = start;
                   widget.endController.text = end;
