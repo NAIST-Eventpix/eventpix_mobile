@@ -21,6 +21,7 @@ class PageResult extends StatefulWidget {
 
 class PageResultState extends State<PageResult> {
   List<Map<String, TextEditingController>> controllers = [];
+  List<ValueNotifier<bool>> deleteControllers = [];
   Calendar? selectedCalendar;
 
   @override
@@ -36,6 +37,7 @@ class PageResultState extends State<PageResult> {
         'dtend': TextEditingController(text: event['dtend']),
       };
 
+
       // 各コントローラーにリスナーを追加して、jsonデータを更新
       controllerMap.forEach((key, controller) {
         controller.addListener(() {
@@ -44,6 +46,9 @@ class PageResultState extends State<PageResult> {
       });
 
       controllers.add(controllerMap);
+
+      final deleteController = ValueNotifier<bool>(false);
+      deleteControllers.add(deleteController);
     }
 
     _initializeCalendar();
@@ -77,6 +82,9 @@ class PageResultState extends State<PageResult> {
       for (var controller in controllerMap.values) {
         controller.dispose();
       }
+    }
+    for (var controller in deleteControllers) {
+      controller.dispose();
     }
     super.dispose();
   }
@@ -164,7 +172,12 @@ class PageResultState extends State<PageResult> {
       return;
     }
 
-    for (var e in widget.json['events']) {
+    for (var ind = 0; ind < controllers.length; ind++) {
+      if (deleteControllers[ind].value) {
+        logger.fine("登録スキップ");
+        continue;
+      }
+      final e = widget.json['events'][ind];
       final event = Event(calendar.id);
       event.title = e['summary'];
       event.start = tz.TZDateTime.from(DateTime.parse(e['dtstart']), tz.local);
@@ -369,12 +382,16 @@ class PageResultState extends State<PageResult> {
                 itemCount: controllers.length,
                 itemBuilder: (context, index) {
                   final eventControllers = controllers[index];
+                  if (deleteControllers[index].value) {
+                    return const SizedBox.shrink();
+                  }
                   return EventCard(
                     summaryController: eventControllers['summary']!,
                     descriptionController: eventControllers['description']!,
                     locationController: eventControllers['location']!,
                     startController: eventControllers['dtstart']!,
                     endController: eventControllers['dtend']!,
+                    deleteController: deleteControllers[index],
                   );
                 },
               )
@@ -398,6 +415,7 @@ class EventCard extends StatefulWidget {
   final TextEditingController locationController;
   final TextEditingController startController;
   final TextEditingController endController;
+  final ValueNotifier<bool> deleteController;
 
   const EventCard({
     super.key,
@@ -406,6 +424,7 @@ class EventCard extends StatefulWidget {
     required this.locationController,
     required this.startController,
     required this.endController,
+    required this.deleteController
   });
 
   @override
@@ -419,6 +438,7 @@ class EventCardState extends State<EventCard> {
   late String location;
   late String start;
   late String end;
+  late bool isDeleted;
 
   bool isSameDay(DateTime a, DateTime b) {
     return a.year == b.year && a.month == b.month && a.day == b.day;
@@ -433,6 +453,7 @@ class EventCardState extends State<EventCard> {
     location = widget.locationController.text;
     start = widget.startController.text;
     end = widget.endController.text;
+    isDeleted = widget.deleteController.value;
   }
 
   @override
@@ -445,6 +466,10 @@ class EventCardState extends State<EventCard> {
       fDate = '$fStart ~ ${DateFormat('HH:mm').format(DateTime.parse(end))}';
     } else {
       fDate = '$fStart ~ $fEnd';
+    }
+
+    if (isDeleted) {
+      return const SizedBox.shrink();
     }
     return GestureDetector(
       onTap: () {
@@ -536,6 +561,18 @@ class EventCardState extends State<EventCard> {
                 Navigator.of(context).pop();
               },
               child: const Text("キャンセル"),
+            ),
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  widget.deleteController.value = true;
+                  isDeleted = true;
+                });
+                Navigator.of(context).pop();
+              },
+              child: const Text('削除',
+              style: TextStyle(color: Colors.red,),
+              ),
             ),
             TextButton(
               onPressed: () {
