@@ -438,6 +438,11 @@ class EventCardState extends State<EventCard> {
   late String end;
   late bool isDeleted;
 
+  late TextEditingController startDateController;
+  late TextEditingController startTimeController;
+  late TextEditingController endDateController;
+  late TextEditingController endTimeController;
+
   bool isSameDay(DateTime a, DateTime b) {
     return a.year == b.year && a.month == b.month && a.day == b.day;
   }
@@ -452,6 +457,30 @@ class EventCardState extends State<EventCard> {
     start = widget.startController.text;
     end = widget.endController.text;
     isDeleted = widget.deleteController.value;
+
+    startDateController = TextEditingController();
+    startDateController.text = start.split('T')[0];
+    startDateController.addListener(() {
+      start = '${startDateController.text}T${startTimeController.text}';
+    });
+
+    startTimeController = TextEditingController();
+    startTimeController.text = start.split('T')[1];
+    startTimeController.addListener(() {
+      start = '${startDateController.text}T${startTimeController.text}';
+    });
+
+    endDateController = TextEditingController();
+    endDateController.text = end.split('T')[0];
+    endDateController.addListener(() {
+      end = '${endDateController.text}T${endTimeController.text}';
+    });
+
+    endTimeController = TextEditingController();
+    endTimeController.text = end.split('T')[1];
+    endTimeController.addListener(() {
+      end = '${endDateController.text}T${endTimeController.text}';
+    });
   }
 
   @override
@@ -515,6 +544,7 @@ class EventCardState extends State<EventCard> {
   }
 
   void _showEditDialog(BuildContext context) {
+    logger.fine("Start : Show Edit Dialog");
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -538,17 +568,29 @@ class EventCardState extends State<EventCard> {
                   decoration: const InputDecoration(labelText: '場所'),
                   maxLines: null,
                 ),
-                _buildDateTimeField(
-                  context,
-                  "開始日時",
-                  widget.startController,
-                  isDateTime: true,
+                Row(
+                  children: [
+                    Expanded(
+                      child:
+                          _buildDateField(context, "開始日", startDateController),
+                    ),
+                    Expanded(
+                      child:
+                          _buildTimeField(context, "開始時刻", startTimeController),
+                    ),
+                  ],
                 ),
-                _buildDateTimeField(
-                  context,
-                  "終了日時",
-                  widget.endController,
-                  isDateTime: true,
+                Row(
+                  children: [
+                    Expanded(
+                      child:
+                          _buildDateField(context, "終了日", endDateController),
+                    ),
+                    Expanded(
+                      child:
+                          _buildTimeField(context, "終了時刻", endTimeController),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -593,11 +635,15 @@ class EventCardState extends State<EventCard> {
         );
       },
     );
+    logger.fine("Finish : Show Edit Dialog");
   }
 
-  Widget _buildDateTimeField(
-      BuildContext context, String label, TextEditingController controller,
-      {bool isDateTime = false}) {
+  Widget _buildDateField(
+    BuildContext context,
+    String label,
+    TextEditingController controller,
+  ) {
+    logger.fine("Build Date Field : $label");
     return TextField(
       controller: controller,
       readOnly: true,
@@ -606,7 +652,6 @@ class EventCardState extends State<EventCard> {
         suffixIcon: const Icon(Icons.calendar_today),
       ),
       onTap: () async {
-        // 日付を選択
         final date = await showDatePicker(
           context: context,
           initialDate: DateTime.now(),
@@ -616,19 +661,33 @@ class EventCardState extends State<EventCard> {
 
         if (date == null || !mounted) return;
 
-        // 時刻を選択
+        controller.text = DateFormat('yyyy-MM-dd').format(date);
+      },
+    );
+  }
+
+  Widget _buildTimeField(
+    BuildContext context,
+    String label,
+    TextEditingController controller,
+  ) {
+    logger.fine("Build Time Field : $label");
+    return TextField(
+      controller: controller,
+      readOnly: true,
+      decoration: InputDecoration(
+        labelText: label,
+        suffixIcon: const Icon(Icons.access_time),
+      ),
+      onTap: () async {
         final time = await showTimePicker(
           context: context,
           initialTime: TimeOfDay.fromDateTime(DateTime.now()),
         );
 
-        if (!mounted || time == null) return;
+        if (time == null || !mounted) return;
 
-        // 日時の選択結果をTextFieldに表示
-        final dateTime =
-            DateTime(date.year, date.month, date.day, time.hour, time.minute);
-        controller.text =
-            "${dateTime.year}-${dateTime.month}-${dateTime.day}T${time.format(context)}";
+        controller.text = time.format(context);
       },
     );
   }
