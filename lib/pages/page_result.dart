@@ -299,21 +299,21 @@ class PageResultState extends State<PageResult> {
                 },
                 child: RichText(
                   text: TextSpan(
-                    style: const TextStyle(color: Colors.black),
-                    children: [
-                      const TextSpan(
-                        text: "予定入力の手間を ",
-                      ),
-                      TextSpan(
-                        text: timeSavedPerFullEvent,
-                        style: TextStyle(
-                          color: Theme.of(context).primaryColor,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
+                      style: const TextStyle(color: Colors.black),
+                      children: [
+                        const TextSpan(
+                          text: "予定入力の手間を ",
                         ),
-                      ),
-                      const TextSpan(text: " 削減しました  "),
-                    ]),
+                        TextSpan(
+                          text: timeSavedPerFullEvent,
+                          style: TextStyle(
+                            color: Theme.of(context).primaryColor,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const TextSpan(text: " 削減しました  "),
+                      ]),
                 ),
               ),
               const SizedBox(height: 40),
