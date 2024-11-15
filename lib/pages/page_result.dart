@@ -50,7 +50,19 @@ class PageResultState extends State<PageResult> {
   }
 
   Future<void> _initializeCalendar() async {
-    final calendarsResult = await _deviceCalendarPlugin.retrieveCalendars();
+    var permissionsGranted = await _deviceCalendarPlugin.hasPermissions();
+    if (permissionsGranted.isSuccess && !permissionsGranted.data!) {
+      permissionsGranted = await _deviceCalendarPlugin.requestPermissions();
+      if (!permissionsGranted.isSuccess || !permissionsGranted.data!) {
+        logger.severe("カレンダーへのアクセスが拒否されました．");
+        return;
+      }
+    }
+    var calendarsResult = await _deviceCalendarPlugin.retrieveCalendars();
+    if (!calendarsResult.isSuccess || calendarsResult.data == null) {
+      logger.severe("カレンダーが見つかりませんでした．");
+      return;
+    }
     if (calendarsResult.isSuccess && calendarsResult.data!.isNotEmpty) {
       setState(() {
         selectedCalendar = calendarsResult.data!.first;
@@ -325,19 +337,28 @@ class PageResultState extends State<PageResult> {
                   children: [
                     const Text("カレンダー："),
                     const SizedBox(width: 16),
-                    Container(
-                      width: 16,
-                      height: 16,
-                      decoration: BoxDecoration(
-                        color: Color(selectedCalendar!.color ?? 0xff0000),
-                        borderRadius: BorderRadius.circular(4),
+                    if (selectedCalendar == null)
+                      const Text(
+                        '未選択',
+                        style: TextStyle(
+                          fontSize: 16,
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      selectedCalendar!.name ?? '無名のカレンダー',
-                      style: const TextStyle(fontSize: 16),
-                    ),
+                    if (selectedCalendar != null) ...[
+                      Container(
+                        width: 16,
+                        height: 16,
+                        decoration: BoxDecoration(
+                          color: Color(selectedCalendar!.color ?? 0xff0000),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        selectedCalendar!.name ?? '無名のカレンダー',
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                    ],
                   ],
                 ),
               ),
