@@ -2,6 +2,8 @@ PODS:
   - device_calendar (0.0.1):
     - Flutter
   - Flutter (1.0.0)
+  - flutter_sharing_intent (0.0.1):
+    - Flutter
   - image_picker_ios (0.0.1):
     - Flutter
   - quick_actions_ios (0.0.1):
@@ -10,6 +12,7 @@ PODS:
 DEPENDENCIES:
   - device_calendar (from `.symlinks/plugins/device_calendar/ios`)
   - Flutter (from `Flutter`)
+  - flutter_sharing_intent (from `.symlinks/plugins/flutter_sharing_intent/ios`)
   - image_picker_ios (from `.symlinks/plugins/image_picker_ios/ios`)
   - quick_actions_ios (from `.symlinks/plugins/quick_actions_ios/ios`)
 
@@ -18,6 +21,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/device_calendar/ios"
   Flutter:
     :path: Flutter
+  flutter_sharing_intent:
+    :path: ".symlinks/plugins/flutter_sharing_intent/ios"
   image_picker_ios:
     :path: ".symlinks/plugins/image_picker_ios/ios"
   quick_actions_ios:
@@ -26,6 +31,7 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   device_calendar: 9cb33f88a02e19652ec7b8b122ca778f751b1f7b
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
+  flutter_sharing_intent: e35380d0e1501d7111dbb7e46d5ac6339da6da98
   image_picker_ios: c560581cceedb403a6ff17f2f816d7fea1421fc1
   quick_actions_ios: 56f3cbaa71e94f212838d1f9fe354bd0734779bf
 
