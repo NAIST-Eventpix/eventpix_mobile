@@ -19,6 +19,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.orange),
         useMaterial3: true,
+        fontFamily: 'NotoSansJP',
       ),
       home: const PageTop(title: 'Eventpix'),
     );
