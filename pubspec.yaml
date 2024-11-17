@@ -38,7 +38,6 @@ dependencies:
   device_calendar: ^4.3.3
   timezone: ^0.9.4
   collection: ^1.15.0
-  flutter_sharing_intent: ^1.1.1
   shared_preferences: ^2.2.2
   logger: ^1.0.0
 
