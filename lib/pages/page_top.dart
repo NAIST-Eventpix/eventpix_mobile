@@ -79,24 +79,48 @@ class StatePageTop extends State<PageTop> {
     showLoadingDialog();
 
     Json json;
-    try {
-      final request = http.MultipartRequest(
-        'POST',
-        Uri.https(apiDomain, '/pick_schedule_from_image'),
-      );
-      request.files
-          .add(await http.MultipartFile.fromPath('file', pickedFile.path));
-      final response = await http.Response.fromStream(await request.send());
-      json = jsonDecode(utf8.decode(response.bodyBytes));
-    } catch (e) {
-      json = {'error': e.toString()};
-    }
+    // try {
+    //   final request = http.MultipartRequest(
+    //     'POST',
+    //     Uri.https(apiDomain, '/pick_schedule_from_image'),
+    //   );
+    //   request.files
+    //       .add(await http.MultipartFile.fromPath('file', pickedFile.path));
+    //   final response = await http.Response.fromStream(await request.send());
+    //   json = jsonDecode(utf8.decode(response.bodyBytes));
+    // } catch (e) {
+    //   json = {'error': e.toString()};
+    // }
 
-    logger.fine('API Result  : ${json.toString()}');
-    if (!mounted) return {};
-    if (json.containsKey('error')) {
-      errorDialog(context, '変換中にエラーが発生しました．\n${json['error']}');
-    }
+    // logger.fine('API Result  : ${json.toString()}');
+    // if (!mounted) return {};
+    // if (json.containsKey('error')) {
+    //   errorDialog(context, '変換中にエラーが発生しました．\n${json['error']}');
+    // }
+
+    json = {
+      'events': [
+        {
+          'summary': 'ABC社 就職説明会',
+          'description': '',
+          'location': 'ABC社 東京本社',
+          'dtstart': '2024-11-17T15:00:00',
+          'dtend': '2024-11-17T16:00:00',
+        },
+        {
+          'summary': 'XYZ社 就活セミナー',
+          'description': '',
+          'location': 'オフィス',
+          'dtstart': '2024-11-18T18:00:00',
+          'dtend': '2024-11-18T20:00:00',
+        },
+      ],
+    };
+
+    await Future.delayed(const Duration(seconds: 5));
+
+    if(!mounted) return {};
+
     Navigator.of(context).pop();
     return json;
   }
