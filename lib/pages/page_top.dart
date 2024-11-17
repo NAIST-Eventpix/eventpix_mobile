@@ -119,7 +119,7 @@ class StatePageTop extends State<PageTop> {
 
     await Future.delayed(const Duration(seconds: 5));
 
-    if(!mounted) return {};
+    if (!mounted) return {};
 
     Navigator.of(context).pop();
     return json;
