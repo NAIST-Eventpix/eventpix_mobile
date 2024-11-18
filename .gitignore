@@ -44,3 +44,6 @@ app.*.map.json
 
 credentials.json
 token.json
+
+# IDE files
+.vscode/
